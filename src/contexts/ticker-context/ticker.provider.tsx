@@ -1,21 +1,20 @@
-import {useEffect, useRef, useState} from "react"
-import Ticker from "../../ticker"
+import { ReactNode, useEffect, useRef, useState } from "react";
+import Ticker from "../../ticker";
+import TickerContext from "./ticker.context";
 
 interface Props {
-  ticker: Ticker
+  children: ReactNode;
+  ticker: Ticker;
 }
 
-const TickerProvider = ({ ticker }: Props) => {
- const tickerRef = useRef(ticker)
- const [tempo, setTempo] = useState(ticker.tempo)
- const [beatCount, setBeatCount] = useState(ticker.currBeat)
+const TickerProvider = ({ ticker, children }: Props) => {
+  const tickerRef = useRef(ticker);
 
- const startTicker = () => {
-    tickerRef.current.init()
- }
+  return (
+    <TickerContext.Provider value={ticker}>
+      {children}
+    </TickerContext.Provider>
+  );
+};
 
- useEffect(() => {
-  tickerRef.current.onTick(() => setBeatCount((prev) => prev + 1))
- }, [tickerRef.current])
-  
-}
+export default TickerProvider;

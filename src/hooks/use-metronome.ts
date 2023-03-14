@@ -1,29 +1,12 @@
-import { useEffect, useState } from "react";
-import useTicker from "./use-ticker";
+import { useContext } from "react";
+import TickerContext from "../contexts/ticker-context/ticker.context";
 
 export default function useMetronome() {
-  const ticker = useTicker()
-  const [tempo, setTempo] = useState(ticker.tempo);
-  const [metre, setMetre] = useState(ticker.metre);
-  const [beatCount, setBeatCount] = useState(ticker.currBeat);
+  const ctx = useContext(TickerContext);
 
-  useEffect(() => {
-    ticker.tempo = tempo;
-  }, [ticker, tempo]);
+  if (!ctx) {
+    throw new Error("useMetronome can only be used within a TickerProvider")
+  }
 
-  useEffect(() => {
-    ticker.metre = tempo;
-  }, [ticker, metre]);
-
-  useEffect(() => {
-    ticker.onTick(() => setBeatCount((prev) => prev + 1));
-  }, [ticker]);
-
-  const startTicker = () => {
-    ticker.init();
-  };
-
-  return {
-    tempo, setTempo, metre, setMetre, beatCount, setBeatCount
-  };
+  return ctx;
 }

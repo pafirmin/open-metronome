@@ -10,33 +10,22 @@ type OnTickFn = (t: Ticker) => void
 export default class Ticker {
   public isRunning: boolean = false;
   public currBeat: number = 1;
+  public silent: boolean = false;
+  public tempo: number;
+  public metre: number;
+  public division: number;
   private nextNoteTime: number = 0;
-  private _tempo: number;
-  private _metre: number;
-  private _division: number;
   private gainNode: GainNode;
   private interval: number | undefined;
   private onTickCb: OnTickFn | undefined;
 
   constructor(private readonly ctx: AudioContext, config?: TickerConfig) {
-    this._metre = config?.metre || 4;
-    this._tempo = config?.tempo || 120;
-    this._division = config?.division || 1;
+    this.metre = config?.metre ?? 4;
+    this.tempo = config?.tempo ?? 120;
+    this.division = config?.division ?? 1;
     this.onTickCb = config?.onTick;
     this.gainNode = ctx.createGain();
     this.gainNode.gain.value = 0.2;
-  }
-
-  set tempo(n: number) {
-    this._tempo = n;
-  }
-
-  set metre(n: number) {
-    this._metre = n;
-  }
-
-  set division(n: number) {
-    this._division = n;
   }
 
   public init() {
@@ -63,10 +52,12 @@ export default class Ticker {
 
   private queuePulse() {
     if (this.nextNoteTime < this.ctx.currentTime + 0.2) {
-      this.playTick();
-      this.nextNoteTime += (60.0 / this._tempo) * this._division;
+      if (!this.silent) {
+        this.playTick();
+      }
+      this.nextNoteTime += (60.0 / this.tempo) * this.division;
       this.currBeat =
-        this.currBeat === this._metre ? 1 : this.currBeat + this._division;
+        this.currBeat === this.metre ? 1 : this.currBeat + this.division;
     }
   }
 

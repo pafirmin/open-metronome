@@ -17,7 +17,7 @@ interface ProgramChunk {
  */
 
 export default function useProgrammer() {
-  const metronome = useMetronome();
+  const { beatCount, setValues, isRunning } = useMetronome();
   const [routine, setRoutine] = useState<ProgramChunk[]>([]);
 
   // The index of the current program chunk
@@ -29,7 +29,7 @@ export default function useProgrammer() {
 
     if (!currChunk) return;
 
-    metronome.setValues((prev) => ({
+    setValues((prev) => ({
       ...prev,
       tempo: currChunk.tempo,
       metre: currChunk.metre,
@@ -44,12 +44,27 @@ export default function useProgrammer() {
      * On final beat of curent chunk: if chunk is last in routine, reset
      * currIndex to 0. Else, increment currIndex to move routine along.
      */
-    if (currChunk.metre * currChunk.measures === metronome.beatCount) {
+    if (currChunk.metre * currChunk.measures === beatCount) {
       setCurrIndex((currIndex + 1) % routine.length);
     }
-  }, [metronome.beatCount]);
+  }, [beatCount]);
+
+  useEffect(() => {
+    if (!isRunning && currIndex !== 0) {
+      setCurrIndex(0);
+    }
+  }, [isRunning]);
 
   const appendChunk = (chunk: ProgramChunk) => {
+    if (routine.length === 0) {
+      setValues((prev) => ({
+        ...prev,
+        tempo: chunk.tempo,
+        metre: chunk.metre,
+        silent: chunk.silent,
+      }));
+    }
+
     setRoutine((old) => [...old, chunk]);
   };
 
@@ -61,5 +76,5 @@ export default function useProgrammer() {
     setRoutine((old) => old.filter((_, i) => i !== index));
   };
 
-  return { appendChunk, removeChunk };
+  return { routine, appendChunk, removeChunk };
 }

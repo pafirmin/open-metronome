@@ -1,10 +1,13 @@
 type TickerCallback = (t: Ticker) => void;
+
 type OnTickCallback = (currBeat: number) => void;
+
+export type Division = 0.5 | 1
 
 interface TickerConfig {
   tempo?: number;
   metre?: number;
-  division?: number;
+  division?: Division;
   onTick?: OnTickCallback;
   onInit?: TickerCallback;
   onReset?: TickerCallback;
@@ -21,7 +24,7 @@ export interface TickerOptions {
    * division: determines which note values should cause a tick
    * to be played. 1 = tick on quarter notes, 0.5 = tick on eighth notes.
    */
-  division: 1 | 0.5;
+  division: Division;
 
   /* silent: if true, ticks will not be audible. */
   silent: boolean;
@@ -33,10 +36,9 @@ export default class Ticker {
   private silent: boolean = false;
   private tempo: number;
   private metre: number;
-  private division: number;
+  private division: Division;
   private nextNoteTime: number = 0;
   private gainNode: GainNode;
-  private interval: number | undefined;
   private onTickCb: OnTickCallback | undefined;
   private onInitCb: TickerCallback | undefined;
   private onResetCb: TickerCallback | undefined;
@@ -55,9 +57,11 @@ export default class Ticker {
     this.isRunning = true;
     this.gainNode.connect(this.ctx.destination);
     this.nextNoteTime = this.ctx.currentTime;
+
     if (typeof this.onInitCb === "function") {
       this.onInitCb(this);
     }
+
     this.pulse();
   }
 
@@ -70,9 +74,9 @@ export default class Ticker {
 
   public reset() {
     this.isRunning = false;
-    clearInterval(this.interval);
     this.currBeat = 0;
     this.gainNode.disconnect();
+
     if (typeof this.onResetCb === "function") {
       this.onResetCb(this);
     }

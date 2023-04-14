@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { IconButton, Slider } from "@mui/material";
 import AddIcon from "@mui/icons-material/AddCircleOutline";
 import RemoveIcon from "@mui/icons-material/RemoveCircleOutline";
+import {Division} from "../../ticker/ticker";
 
 const Wrapper = styled.div`
   margin: 1rem auto 0 auto;
@@ -42,24 +43,24 @@ const NoteValue = styled.span<{ selected: boolean }>`
 `;
 
 const Controls = () => {
-  const m = useMetronome();
-  const [sliderVal, setSliderVal] = useState(m.values.tempo);
+  const { values, setValues, isRunning, reset, startPulse } = useMetronome();
+  const [sliderVal, setSliderVal] = useState(values.tempo);
 
   const handleTempo = (val: number) => {
-    m.setValues((prev) => ({...prev, tempo: val}))
+    setValues((prev) => ({...prev, tempo: val}))
   };
 
   const handleAdjustMetre = (change: number) => {
-    m.setValues((prev) => ({...prev, metre: prev.metre + change}))
+    setValues((prev) => ({...prev, metre: prev.metre + change}))
   };
 
-  const handleNoteValue = (val: number) => {
-    m.setValues((prev) => ({...prev, division: val}))
+  const handleNoteValue = (val: Division) => {
+    setValues((prev) => ({...prev, division: val}))
   }
 
   useEffect(() => {
-    setSliderVal(m.values.tempo)
-  }, [m.values.tempo])
+    setSliderVal(values.tempo)
+  }, [values.tempo])
 
   return (
     <Wrapper>
@@ -73,9 +74,6 @@ const Controls = () => {
         valueLabelFormat={sliderVal + " bpm"}
         color="secondary"
       />
-      <StartBtn onClick={m.isRunning ? m.reset : m.startPulse}>
-        {m.isRunning ? "Stop" : "Start"}
-      </StartBtn>
       <div
         style={{
           display: "flex",
@@ -94,7 +92,7 @@ const Controls = () => {
             >
               <RemoveIcon fontSize="large" />
             </IconButton>
-            <span>{m.values.metre}</span>
+            <span>{values.metre}</span>
             <IconButton
               onClick={() => handleAdjustMetre(1)}
               aria-label="increment meter"
@@ -104,6 +102,9 @@ const Controls = () => {
             </IconButton>
           </ControlContainer>
         </div>
+      <StartBtn onClick={isRunning ? reset : startPulse}>
+        {isRunning ? "Stop" : "Start"}
+      </StartBtn>
         <div style={{ width: "150px" }}>
           <span style={{ display: "block" }}>Note</span>
           <ControlContainer>
@@ -112,7 +113,7 @@ const Controls = () => {
               role="button"
               tabIndex={0}
               aria-label="Quarter note pulse"
-              selected={m.values.division === 1}
+              selected={values.division === 1}
             >
               ♩
             </NoteValue>
@@ -121,7 +122,7 @@ const Controls = () => {
               role="button"
               tabIndex={0}
               aria-label="Eighth note pulse"
-              selected={m.values.division === 0.5}
+              selected={values.division === 0.5}
             >
               ♫
             </NoteValue>

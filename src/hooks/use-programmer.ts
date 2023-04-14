@@ -27,6 +27,8 @@ export default function useProgrammer() {
     // When currIndex changes, set metronome values to new chunk settings
     const currChunk = routine[currIndex];
 
+    if (!currChunk) return;
+
     metronome.setValues((prev) => ({
       ...prev,
       tempo: currChunk.tempo,
@@ -47,11 +49,17 @@ export default function useProgrammer() {
     }
   }, [metronome.beatCount]);
 
-  const addChunk = (chunk: ProgramChunk) => {
+  const appendChunk = (chunk: ProgramChunk) => {
     setRoutine((old) => [...old, chunk]);
   };
 
+  /***
+   * Removes the ProgramChunk at the given index
+   * @Param {number} index: the index of the ProgramChunk to remove
+   */
   const removeChunk = (index: number) => {
     setRoutine((old) => old.filter((_, i) => i !== index));
   };
+
+  return { appendChunk, removeChunk };
 }

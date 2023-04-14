@@ -10,7 +10,7 @@ interface Props {
 
 const TickerProvider = ({ ticker, children }: Props) => {
   const tickerRef = useRef(ticker);
-  const [beatCount, setBeatCount] = useState(ticker.currBeat);
+  const [beatCount, setBeatCount] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [values, setValues] = useState<TickerOptions>({
     tempo: 120,
@@ -24,9 +24,14 @@ const TickerProvider = ({ ticker, children }: Props) => {
     tickerRef.current.setValues(values);
   }, [tickerRef, values]);
 
+  // Initialise ticker callbacks
   useEffect(() => {
-    tickerRef.current.onTick((ticker) => setBeatCount(ticker.currBeat));
+    tickerRef.current.onTick((currBeat) => setBeatCount(currBeat));
     tickerRef.current.onInit(() => setIsRunning(true));
+    tickerRef.current.onReset(() => {
+      setBeatCount(0);
+      setIsRunning(false);
+    });
   }, [tickerRef.current]);
 
   const startPulse = () => {
@@ -35,7 +40,6 @@ const TickerProvider = ({ ticker, children }: Props) => {
 
   const reset = () => {
     tickerRef.current.reset();
-    setIsRunning(false);
   };
 
   const contextValue = {

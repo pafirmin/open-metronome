@@ -1,23 +1,34 @@
 type TickerCallback = (t: Ticker) => void;
+type OnTickCallback = (currBeat: number) => void;
 
 interface TickerConfig {
   tempo?: number;
   metre?: number;
   division?: number;
-  onTick?: TickerCallback
-  onInit?: TickerCallback
+  onTick?: OnTickCallback;
+  onInit?: TickerCallback;
+  onReset?: TickerCallback;
 }
 
 export interface TickerOptions {
+  /* tempo: the tempo in beats per minute. */
   tempo: number;
-  metre: number;
-  division: number;
-  silent: boolean;
-};
 
+  /* metre: the number of beats per measure. */
+  metre: number;
+
+  /***
+   * division: determines which note values should cause a tick
+   * to be played. 1 = tick on quarter notes, 0.5 = tick on eighth notes.
+   */
+  division: 1 | 0.5;
+
+  /* silent: if true, ticks will not be audible. */
+  silent: boolean;
+}
 
 export default class Ticker {
-  public currBeat: number = 0;
+  private currBeat: number = 0;
   private isRunning: boolean = false;
   private silent: boolean = false;
   private tempo: number;
@@ -26,8 +37,9 @@ export default class Ticker {
   private nextNoteTime: number = 0;
   private gainNode: GainNode;
   private interval: number | undefined;
-  private onTickCb: TickerCallback | undefined;
+  private onTickCb: OnTickCallback | undefined;
   private onInitCb: TickerCallback | undefined;
+  private onResetCb: TickerCallback | undefined;
 
   constructor(private readonly ctx: AudioContext, config?: TickerConfig) {
     this.metre = config?.metre ?? 4;
@@ -41,34 +53,41 @@ export default class Ticker {
 
   public init() {
     this.isRunning = true;
-    this.currBeat = 0;
     this.gainNode.connect(this.ctx.destination);
     this.nextNoteTime = this.ctx.currentTime;
     if (typeof this.onInitCb === "function") {
-      this.onInitCb(this)
+      this.onInitCb(this);
     }
     this.pulse();
   }
 
-  public setValues( { tempo, metre, division, silent }: TickerOptions) {
+  public setValues({ tempo, metre, division, silent }: TickerOptions) {
     this.tempo = tempo;
     this.metre = metre;
     this.division = division;
-    this.silent = silent
+    this.silent = silent;
   }
 
   public reset() {
     this.isRunning = false;
     clearInterval(this.interval);
     this.currBeat = 0;
+    this.gainNode.disconnect();
+    if (typeof this.onResetCb === "function") {
+      this.onResetCb(this);
+    }
   }
 
-  public onTick(cb: TickerCallback) {
+  public onTick(cb: OnTickCallback) {
     this.onTickCb = cb;
   }
 
   public onInit(cb: TickerCallback) {
     this.onInitCb = cb;
+  }
+
+  public onReset(cb: TickerCallback) {
+    this.onResetCb = cb;
   }
 
   private pulse() {
@@ -90,7 +109,7 @@ export default class Ticker {
     oscillator.stop(this.nextNoteTime + 0.1);
     oscillator.onended = this.pulse.bind(this);
     if (typeof this.onTickCb === "function") {
-      this.onTickCb(this);
+      this.onTickCb(this.currBeat);
     }
   }
 

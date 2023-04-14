@@ -1,6 +1,7 @@
 import { Global } from "@emotion/react";
 import styled from "@emotion/styled";
 import Controls from "./components/controls/Controls";
+import CustomProgram from "./components/custom-program";
 import Metronome from "./components/metronome/Metronome";
 import TickerProvider from "./contexts/ticker-context/ticker.provider";
 import globalStyles from "./global-styles";
@@ -24,6 +25,7 @@ function App() {
       <MainWrapper>
         <Metronome />
         <Controls />
+        <CustomProgram />
       </MainWrapper>
     </TickerProvider>
   );

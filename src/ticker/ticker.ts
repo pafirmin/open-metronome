@@ -2,7 +2,7 @@ type TickerCallback = (t: Ticker) => void;
 
 type OnTickCallback = (currBeat: number) => void;
 
-export type Division = 0.5 | 1
+export type Division = 0.5 | 1;
 
 interface TickerConfig {
   tempo?: number;
@@ -31,7 +31,7 @@ export interface TickerOptions {
 }
 
 export default class Ticker {
-  private currBeat: number = 0;
+  private currBeat: number = 1;
   private isRunning: boolean = false;
   private silent: boolean = false;
   private tempo: number;
@@ -57,6 +57,7 @@ export default class Ticker {
     this.isRunning = true;
     this.gainNode.connect(this.ctx.destination);
     this.nextNoteTime = this.ctx.currentTime;
+    this.currBeat = 1;
 
     if (typeof this.onInitCb === "function") {
       this.onInitCb(this);
@@ -74,7 +75,7 @@ export default class Ticker {
 
   public reset() {
     this.isRunning = false;
-    this.currBeat = 0;
+    this.currBeat = 1;
     this.gainNode.disconnect();
 
     if (typeof this.onResetCb === "function") {
@@ -99,9 +100,7 @@ export default class Ticker {
       this.nextNoteTime += (60.0 / this.tempo) * this.division;
       this.playTick();
       this.currBeat =
-        this.currBeat + this.division === this.metre
-          ? 0
-          : this.currBeat + this.division;
+        this.currBeat === this.metre ? 1 : this.currBeat + this.division;
     }
   }
 
@@ -120,7 +119,7 @@ export default class Ticker {
   private getFrequency() {
     if (this.silent) {
       return 0;
-    } else if (this.currBeat === 0) {
+    } else if (this.currBeat === 1) {
       return 550;
     } else if (Number.isInteger(this.currBeat)) {
       return 450;

@@ -1,16 +1,6 @@
 import { useEffect, useState } from "react";
+import {ProgramChunk} from "../common/interfaces/program-chunk.interface";
 import useMetronome from "./use-metronome";
-
-/***
- * A ProgramChunk represents one portion of a custom practice routine
- */
-
-interface ProgramChunk {
-  tempo: number;
-  measures: number;
-  metre: number;
-  silent: boolean;
-}
 
 /***
  * useProgrammer manages the creation of custom practice routines
@@ -19,6 +9,7 @@ interface ProgramChunk {
 export default function useProgrammer() {
   const { beatCount, setValues, isRunning } = useMetronome();
   const [routine, setRoutine] = useState<ProgramChunk[]>([]);
+  const [measuresCompleted, setMeasuresCompleted] = useState(0)
 
   // The index of the current program chunk
   const [currIndex, setCurrIndex] = useState(0);
@@ -40,18 +31,32 @@ export default function useProgrammer() {
   useEffect(() => {
     const currChunk = routine[currIndex];
 
+    if (!currChunk) return;
+
     /***
-     * On final beat of curent chunk: if chunk is last in routine, reset
+     * On final beat of current chunk: if chunk is last in routine, reset
      * currIndex to 0. Else, increment currIndex to move routine along.
      */
-    if (currChunk.metre * currChunk.measures === beatCount) {
+    if (measuresCompleted === currChunk.measures) {
       setCurrIndex((currIndex + 1) % routine.length);
+      setMeasuresCompleted(0)
+    }
+  }, [beatCount]);
+
+  useEffect(() => {
+    const currChunk = routine[currIndex];
+
+    if (!currChunk) return;
+
+    if (beatCount === currChunk.metre) {
+      setMeasuresCompleted((prev) => prev + 1)
     }
   }, [beatCount]);
 
   useEffect(() => {
     if (!isRunning && currIndex !== 0) {
       setCurrIndex(0);
+      setMeasuresCompleted(0)
     }
   }, [isRunning]);
 
@@ -76,5 +81,5 @@ export default function useProgrammer() {
     setRoutine((old) => old.filter((_, i) => i !== index));
   };
 
-  return { routine, appendChunk, removeChunk };
+  return { routine, appendChunk, removeChunk, currIndex };
 }

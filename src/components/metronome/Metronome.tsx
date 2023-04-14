@@ -58,12 +58,12 @@ const Pendulum = styled.div<PendulumProps>`
 `;
 
 const Metronome = () => {
-  const { tempo, isRunning } = useMetronome()
+  const { values, isRunning } = useMetronome()
 
   return (
     <Wrapper>
-      <TempoDisplay>{tempo}bpm</TempoDisplay>
-      <Pendulum isRunning={isRunning} tempo={tempo} />
+      <TempoDisplay>{values.tempo}bpm</TempoDisplay>
+      <Pendulum isRunning={isRunning} tempo={values.tempo} />
     </Wrapper>
   );
 };

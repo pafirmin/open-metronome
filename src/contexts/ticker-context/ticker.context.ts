@@ -1,16 +1,13 @@
 import React from "react";
+import {TickerOptions} from "../../ticker/ticker";
 
 type TickerContextValue = {
-  tempo: number;
-  metre: number;
+  values: TickerOptions,
+  setValues: React.Dispatch<React.SetStateAction<TickerOptions>>
   beatCount: number;
-  division: number;
   reset: () => void
   startPulse: () => void;
   isRunning: boolean
-  setTempo: React.Dispatch<React.SetStateAction<number>>
-  setMetre: React.Dispatch<React.SetStateAction<number>>
-  setDivision: React.Dispatch<React.SetStateAction<number>>
 };
 
 const TickerContext = React.createContext<TickerContextValue>({} as any);

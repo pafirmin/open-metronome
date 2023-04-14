@@ -43,31 +43,23 @@ const NoteValue = styled.span<{ selected: boolean }>`
 
 const Controls = () => {
   const m = useMetronome();
-  const [sliderVal, setSliderVal] = useState(m.tempo);
+  const [sliderVal, setSliderVal] = useState(m.values.tempo);
 
   const handleTempo = (val: number) => {
-    m.setTempo(val)
+    m.setValues((prev) => ({...prev, tempo: val}))
   };
 
-  const incrementMetre = () => {
-    m.setMetre((prev) => prev + 1);
+  const handleAdjustMetre = (change: number) => {
+    m.setValues((prev) => ({...prev, metre: prev.metre + change}))
   };
 
-  const decrementMetre = () => {
-    m.setMetre((prev) => prev - 1);
-  };
-
-  const setQuarterNote = () => {
-    m.setDivision(1);
-  };
-
-  const setEighthNote = () => {
-    m.setDivision(0.5);
-  };
+  const handleNoteValue = (val: number) => {
+    m.setValues((prev) => ({...prev, division: val}))
+  }
 
   useEffect(() => {
-    setSliderVal(m.tempo)
-  }, [m.tempo])
+    setSliderVal(m.values.tempo)
+  }, [m.values.tempo])
 
   return (
     <Wrapper>
@@ -96,15 +88,15 @@ const Controls = () => {
           <span style={{ display: "block" }}>Metre</span>
           <ControlContainer>
             <IconButton
-              onClick={decrementMetre}
+              onClick={() => handleAdjustMetre(-1)}
               aria-label="decrement meter"
               size="large"
             >
               <RemoveIcon fontSize="large" />
             </IconButton>
-            <span>{m.metre}</span>
+            <span>{m.values.metre}</span>
             <IconButton
-              onClick={incrementMetre}
+              onClick={() => handleAdjustMetre(1)}
               aria-label="increment meter"
               size="large"
             >
@@ -116,20 +108,20 @@ const Controls = () => {
           <span style={{ display: "block" }}>Note</span>
           <ControlContainer>
             <NoteValue
-              onClick={setQuarterNote}
+              onClick={() => handleNoteValue(1)}
               role="button"
               tabIndex={0}
               aria-label="Quarter note pulse"
-              selected={m.division === 1}
+              selected={m.values.division === 1}
             >
               ♩
             </NoteValue>
             <NoteValue
-              onClick={setEighthNote}
+              onClick={() => handleNoteValue(0.5)}
               role="button"
               tabIndex={0}
               aria-label="Eighth note pulse"
-              selected={m.division === 0.5}
+              selected={m.values.division === 0.5}
             >
               ♫
             </NoteValue>

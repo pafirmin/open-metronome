@@ -1,39 +1,36 @@
 import { ReactNode, useEffect, useRef, useState } from "react";
 import Ticker from "../../ticker";
+import { TickerOptions } from "../../ticker/ticker";
 import TickerContext from "./ticker.context";
 
 interface Props {
   children: ReactNode;
-  ticker: Ticker
+  ticker: Ticker;
 }
 
 const TickerProvider = ({ ticker, children }: Props) => {
   const tickerRef = useRef(ticker);
-  const [tempo, setTempo] = useState(ticker.tempo);
-  const [metre, setMetre] = useState(ticker.metre);
   const [beatCount, setBeatCount] = useState(ticker.currBeat);
-  const [division, setDivision] = useState(ticker.division);
-  const [isRunning, setIsRunning] = useState(ticker.isRunning);
+  const [isRunning, setIsRunning] = useState(false);
+  const [values, setValues] = useState<TickerOptions>({
+    tempo: 120,
+    metre: 4,
+    division: 1,
+    silent: false,
+  });
+
+  // Update ticker to reflect changes to values
+  useEffect(() => {
+    tickerRef.current.setValues(values);
+  }, [tickerRef, values]);
 
   useEffect(() => {
-    tickerRef.current.tempo = tempo;
-  }, [tickerRef.current.tempo, tempo]);
-
-  useEffect(() => {
-    tickerRef.current.metre = metre;
-  }, [tickerRef.current.metre, metre]);
-
-  useEffect(() => {
-    tickerRef.current.division = division;
-  }, [tickerRef.current.division, division]);
-
-  useEffect(() => {
-    tickerRef.current.onTick(() => setBeatCount((prev) => prev + 1));
+    tickerRef.current.onTick((ticker) => setBeatCount(ticker.currBeat));
+    tickerRef.current.onInit(() => setIsRunning(true));
   }, [tickerRef.current]);
 
   const startPulse = () => {
     tickerRef.current.init();
-    setIsRunning(true);
   };
 
   const reset = () => {
@@ -41,13 +38,9 @@ const TickerProvider = ({ ticker, children }: Props) => {
     setIsRunning(false);
   };
 
-  const val = {
-    tempo,
-    setTempo,
-    metre,
-    setMetre,
-    division,
-    setDivision,
+  const contextValue = {
+    values,
+    setValues,
     beatCount,
     startPulse,
     reset,
@@ -55,8 +48,10 @@ const TickerProvider = ({ ticker, children }: Props) => {
   };
 
   return (
-    <TickerContext.Provider value={val}>{children}</TickerContext.Provider>
+    <TickerContext.Provider value={contextValue}>
+      {children}
+    </TickerContext.Provider>
   );
 };
 
-export default TickerProvider
+export default TickerProvider;

@@ -1,29 +1,40 @@
+type TickerCallback = (t: Ticker) => void;
+
 interface TickerConfig {
   tempo?: number;
   metre?: number;
   division?: number;
-  onTick?: (self: Ticker) => void;
+  onTick?: TickerCallback
+  onInit?: TickerCallback
 }
 
-type OnTickFn = (t: Ticker) => void;
+export interface TickerOptions {
+  tempo: number;
+  metre: number;
+  division: number;
+  silent: boolean;
+};
+
 
 export default class Ticker {
-  public isRunning: boolean = false;
   public currBeat: number = 0;
-  public silent: boolean = false;
-  public tempo: number;
-  public metre: number;
-  public division: number;
+  private isRunning: boolean = false;
+  private silent: boolean = false;
+  private tempo: number;
+  private metre: number;
+  private division: number;
   private nextNoteTime: number = 0;
   private gainNode: GainNode;
   private interval: number | undefined;
-  private onTickCb: OnTickFn | undefined;
+  private onTickCb: TickerCallback | undefined;
+  private onInitCb: TickerCallback | undefined;
 
   constructor(private readonly ctx: AudioContext, config?: TickerConfig) {
     this.metre = config?.metre ?? 4;
     this.tempo = config?.tempo ?? 120;
     this.division = config?.division ?? 1;
     this.onTickCb = config?.onTick;
+    this.onInitCb = config?.onInit;
     this.gainNode = ctx.createGain();
     this.gainNode.gain.value = 0.1;
   }
@@ -33,7 +44,17 @@ export default class Ticker {
     this.currBeat = 0;
     this.gainNode.connect(this.ctx.destination);
     this.nextNoteTime = this.ctx.currentTime;
+    if (typeof this.onInitCb === "function") {
+      this.onInitCb(this)
+    }
     this.pulse();
+  }
+
+  public setValues( { tempo, metre, division, silent }: TickerOptions) {
+    this.tempo = tempo;
+    this.metre = metre;
+    this.division = division;
+    this.silent = silent
   }
 
   public reset() {
@@ -42,8 +63,12 @@ export default class Ticker {
     this.currBeat = 0;
   }
 
-  public onTick(cb: OnTickFn) {
+  public onTick(cb: TickerCallback) {
     this.onTickCb = cb;
+  }
+
+  public onInit(cb: TickerCallback) {
+    this.onInitCb = cb;
   }
 
   private pulse() {
@@ -70,7 +95,9 @@ export default class Ticker {
   }
 
   private getFrequency() {
-    if (this.currBeat === 0) {
+    if (this.silent) {
+      return 0;
+    } else if (this.currBeat === 0) {
       return 550;
     } else if (Number.isInteger(this.currBeat)) {
       return 450;

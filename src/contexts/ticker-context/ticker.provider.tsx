@@ -4,7 +4,7 @@ import TickerContext from "./ticker.context";
 
 interface Props {
   children: ReactNode;
-  ticker: Ticker;
+  ticker: Ticker
 }
 
 const TickerProvider = ({ ticker, children }: Props) => {
@@ -13,6 +13,7 @@ const TickerProvider = ({ ticker, children }: Props) => {
   const [metre, setMetre] = useState(ticker.metre);
   const [beatCount, setBeatCount] = useState(ticker.currBeat);
   const [division, setDivision] = useState(ticker.division);
+  const [isRunning, setIsRunning] = useState(ticker.isRunning);
 
   useEffect(() => {
     tickerRef.current.tempo = tempo;
@@ -32,10 +33,12 @@ const TickerProvider = ({ ticker, children }: Props) => {
 
   const startPulse = () => {
     tickerRef.current.init();
+    setIsRunning(true);
   };
 
   const reset = () => {
     tickerRef.current.reset();
+    setIsRunning(false);
   };
 
   const val = {
@@ -43,20 +46,17 @@ const TickerProvider = ({ ticker, children }: Props) => {
     setTempo,
     metre,
     setMetre,
-    beatCount,
-    setBeatCount,
     division,
     setDivision,
+    beatCount,
     startPulse,
     reset,
-    isPlaying: tickerRef.current.isRunning,
+    isRunning,
   };
 
   return (
-    <TickerContext.Provider value={val}>
-      {children}
-    </TickerContext.Provider>
+    <TickerContext.Provider value={val}>{children}</TickerContext.Provider>
   );
 };
 
-export default TickerProvider;
+export default TickerProvider

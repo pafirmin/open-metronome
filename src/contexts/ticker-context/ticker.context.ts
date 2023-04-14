@@ -7,7 +7,7 @@ type TickerContextValue = {
   division: number;
   reset: () => void
   startPulse: () => void;
-  isPlaying: boolean
+  isRunning: boolean
   setTempo: React.Dispatch<React.SetStateAction<number>>
   setMetre: React.Dispatch<React.SetStateAction<number>>
   setDivision: React.Dispatch<React.SetStateAction<number>>

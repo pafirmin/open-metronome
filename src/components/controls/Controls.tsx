@@ -81,8 +81,8 @@ const Controls = () => {
         valueLabelFormat={sliderVal + " bpm"}
         color="secondary"
       />
-      <StartBtn onClick={m.isPlaying ? m.reset : m.startPulse}>
-        {m.isPlaying ? "Stop" : "Start"}
+      <StartBtn onClick={m.isRunning ? m.reset : m.startPulse}>
+        {m.isRunning ? "Stop" : "Start"}
       </StartBtn>
       <div
         style={{
@@ -97,7 +97,7 @@ const Controls = () => {
           <ControlContainer>
             <IconButton
               onClick={decrementMetre}
-              aria-label="Decrement meter"
+              aria-label="decrement meter"
               size="large"
             >
               <RemoveIcon fontSize="large" />
@@ -105,7 +105,7 @@ const Controls = () => {
             <span>{m.metre}</span>
             <IconButton
               onClick={incrementMetre}
-              aria-label="Increment meter"
+              aria-label="increment meter"
               size="large"
             >
               <AddIcon fontSize="large" />

@@ -17,10 +17,9 @@ const MainWrapper = styled.main`
 
 function App() {
   const ctx = new AudioContext();
-  const ticker = new Ticker(ctx);
 
   return (
-    <TickerProvider ticker={ticker}>
+    <TickerProvider ticker={new Ticker(ctx)}>
       <Global styles={globalStyles} />
       <MainWrapper>
         <Metronome />

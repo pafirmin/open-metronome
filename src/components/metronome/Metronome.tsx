@@ -25,7 +25,7 @@ const swing = keyframes`
 `;
 
 type PendulumProps = {
-  isPlaying: boolean
+  isRunning: boolean
   tempo: number
 };
 
@@ -38,7 +38,7 @@ const Pendulum = styled.div<PendulumProps>`
   background-color: #c4c4c4;
   transform-origin: bottom center;
   animation: ${(props) =>
-    props.isPlaying &&
+    props.isRunning &&
     css`
       ${swing} ${60 / props.tempo}s linear infinite alternate
     `};
@@ -58,13 +58,12 @@ const Pendulum = styled.div<PendulumProps>`
 `;
 
 const Metronome = () => {
-  const { tempo, isPlaying } = useMetronome()
-  console.log(tempo)
+  const { tempo, isRunning } = useMetronome()
 
   return (
     <Wrapper>
       <TempoDisplay>{tempo}bpm</TempoDisplay>
-      <Pendulum isPlaying={isPlaying} tempo={tempo} />
+      <Pendulum isRunning={isRunning} tempo={tempo} />
     </Wrapper>
   );
 };

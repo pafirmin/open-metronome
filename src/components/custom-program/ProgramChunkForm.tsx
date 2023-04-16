@@ -11,16 +11,18 @@ const ProgramForm = styled.form`
   align-items: center;
   justify-content: center;
   height: 2rem;
-  gap: .5rem;
+  gap: 0.5rem;
+  font-size: 1.2rem;
 `;
 
 const NumberInput = styled.input`
   width: 50px;
   height: 20px;
-`
+`;
 
 const ProgramChunkForm = ({ onSubmit }: Props) => {
   const [chunkValues, setChunkValues] = useState<ProgramChunk>({
+    id: "",
     measures: 1,
     metre: 4,
     tempo: 120,

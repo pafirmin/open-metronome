@@ -3,6 +3,7 @@
  */
 
 export interface ProgramChunk {
+  id: string;
   tempo: number;
   measures: number;
   metre: number;

@@ -31,17 +31,17 @@ export interface TickerOptions {
 }
 
 export default class Ticker {
-  private currBeat: number = 1;
-  private isRunning: boolean = false;
-  private silent: boolean = false;
+  private currBeat = 1;
+  private isRunning = false;
+  private silent = false;
   private tempo: number;
   private metre: number;
   private division: Division;
-  private nextNoteTime: number = 0;
   private gainNode: GainNode;
   private onTickCb: OnTickCallback | undefined;
   private onInitCb: TickerCallback | undefined;
   private onResetCb: TickerCallback | undefined;
+  private static readonly PULSE_LENGTH = 0.1;
 
   constructor(private readonly ctx: AudioContext, config?: TickerConfig) {
     this.metre = config?.metre ?? 4;
@@ -56,14 +56,13 @@ export default class Ticker {
   public init() {
     this.isRunning = true;
     this.gainNode.connect(this.ctx.destination);
-    this.nextNoteTime = this.ctx.currentTime;
     this.currBeat = 1;
 
     if (typeof this.onInitCb === "function") {
       this.onInitCb(this);
     }
 
-    this.pulse();
+    this.pulse(this.ctx.currentTime);
   }
 
   public setValues({ tempo, metre, division, silent }: TickerOptions) {
@@ -95,25 +94,31 @@ export default class Ticker {
     this.onResetCb = cb;
   }
 
-  private pulse() {
+  private async pulse(nextNoteTime: number) {
     if (this.isRunning) {
       this.nextNoteTime += (60.0 / this.tempo) * this.division;
-      this.playTick();
-      this.currBeat =
-        this.currBeat === this.metre ? 1 : this.currBeat + this.division;
+
+      await this.playTick(nextNoteTime);
+
+      if (typeof this.onTickCb === "function") {
+        this.onTickCb(this.currBeat);
+      }
+
+      this.currBeat = this.currBeat === this.metre ? 1 : this.currBeat + this.division;
+
+      this.pulse((nextNoteTime + 60 / this.tempo) * this.division)
     }
   }
 
-  private playTick() {
-    const oscillator = this.ctx.createOscillator();
-    oscillator.connect(this.gainNode);
-    oscillator.frequency.value = this.getFrequency();
-    oscillator.start(this.nextNoteTime);
-    oscillator.stop(this.nextNoteTime + 0.1);
-    oscillator.onended = this.pulse.bind(this);
-    if (typeof this.onTickCb === "function") {
-      this.onTickCb(this.currBeat);
-    }
+  private playTick(time: number) {
+    return new Promise<void>((resolve) => {
+      const oscillator = this.ctx.createOscillator();
+      oscillator.connect(this.gainNode);
+      oscillator.frequency.value = this.getFrequency();
+      oscillator.start(time);
+      oscillator.stop(time + Ticker.PULSE_LENGTH);
+      oscillator.onended = () => resolve()
+    });
   }
 
   private getFrequency() {

@@ -22,17 +22,17 @@ const TickerProvider = ({ ticker, children }: Props) => {
   // Update ticker to reflect changes to values
   useEffect(() => {
     tickerRef.current.setValues(values);
-  }, [tickerRef, values]);
+  }, [values]);
 
   // Initialise ticker callbacks
   useEffect(() => {
-    tickerRef.current.onTick((currBeat) => setBeatCount(currBeat));
+    tickerRef.current.onTick(() => setBeatCount((prev) => prev + 1));
     tickerRef.current.onInit(() => setIsRunning(true));
     tickerRef.current.onReset(() => {
       setBeatCount(0);
       setIsRunning(false);
     });
-  }, [tickerRef.current]);
+  }, []);
 
   const startPulse = () => {
     tickerRef.current.init();

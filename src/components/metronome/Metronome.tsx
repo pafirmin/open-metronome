@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { css, keyframes } from '@emotion/react'
+import { css, keyframes } from "@emotion/react";
 import { useMetronome } from "../../hooks";
 
 const Wrapper = styled.div`
@@ -25,8 +25,8 @@ const swing = keyframes`
 `;
 
 type PendulumProps = {
-  isRunning: boolean
-  tempo: number
+  isRunning: boolean;
+  tempo: number;
 };
 
 const Pendulum = styled.div<PendulumProps>`
@@ -58,7 +58,7 @@ const Pendulum = styled.div<PendulumProps>`
 `;
 
 const Metronome = () => {
-  const { values, isRunning } = useMetronome()
+  const { values, isRunning } = useMetronome();
 
   return (
     <Wrapper>
@@ -68,4 +68,4 @@ const Metronome = () => {
   );
 };
 
-export default Metronome
+export default Metronome;

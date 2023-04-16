@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import {ProgramChunk} from "../common/interfaces/program-chunk.interface";
+import { useEffect, useMemo, useState } from "react";
+import { ProgramChunk } from "../common/interfaces/program-chunk.interface";
 import useMetronome from "./use-metronome";
 
 /***
@@ -9,15 +9,14 @@ import useMetronome from "./use-metronome";
 export default function useProgrammer() {
   const { beatCount, setValues, isRunning } = useMetronome();
   const [routine, setRoutine] = useState<ProgramChunk[]>([]);
-  const [measuresCompleted, setMeasuresCompleted] = useState(0)
-
+  const [beatOffset, setBeatOffset] = useState(0);
   // The index of the current program chunk
   const [currIndex, setCurrIndex] = useState(0);
 
-  useEffect(() => {
-    // When currIndex changes, set metronome values to new chunk settings
-    const currChunk = routine[currIndex];
+  const currChunk = useMemo(() => routine[currIndex], [routine, currIndex]);
 
+  // When currChunk changes, set metronome values to new chunk settings
+  useEffect(() => {
     if (!currChunk) return;
 
     setValues((prev) => ({
@@ -26,39 +25,29 @@ export default function useProgrammer() {
       metre: currChunk.metre,
       silent: currChunk.silent,
     }));
-  }, [currIndex]);
+  }, [currChunk, setValues]);
 
+  // Increment measuresCompleted when a chunk finishes a measure
   useEffect(() => {
-    const currChunk = routine[currIndex];
-
     if (!currChunk) return;
 
-    /***
-     * On final beat of current chunk: if chunk is last in routine, reset
-     * currIndex to 0. Else, increment currIndex to move routine along.
-     */
-    if (measuresCompleted === currChunk.measures) {
+    const isLastBeat = beatCount - 1 - beatOffset === currChunk.measures * currChunk.metre;
+    if (isLastBeat) {
+        /***
+         * On final beat of current chunk: if chunk is last in routine, reset
+         * currIndex to 0. Else, increment currIndex to move routine along.
+         */
+      setBeatOffset((prev) => prev + currChunk.measures * currChunk.metre)
       setCurrIndex((currIndex + 1) % routine.length);
-      setMeasuresCompleted(0)
     }
-  }, [beatCount]);
-
-  useEffect(() => {
-    const currChunk = routine[currIndex];
-
-    if (!currChunk) return;
-
-    if (beatCount === currChunk.metre) {
-      setMeasuresCompleted((prev) => prev + 1)
-    }
-  }, [beatCount]);
+  }, [beatCount, currChunk, currIndex, beatOffset, routine.length]);
 
   useEffect(() => {
     if (!isRunning && currIndex !== 0) {
       setCurrIndex(0);
-      setMeasuresCompleted(0)
+      setBeatOffset(0);
     }
-  }, [isRunning]);
+  }, [isRunning, currIndex]);
 
   const appendChunk = (chunk: ProgramChunk) => {
     if (routine.length === 0) {
@@ -74,12 +63,25 @@ export default function useProgrammer() {
   };
 
   /***
-   * Removes the ProgramChunk at the given index
-   * @Param {number} index: the index of the ProgramChunk to remove
+   * Removes the ProgramChunk with the given id
+   * @param index - the id of the ProgramChunk to remove
    */
-  const removeChunk = (index: number) => {
-    setRoutine((old) => old.filter((_, i) => i !== index));
+  const removeChunk = (id: string) => {
+    setRoutine((old) => old.filter((chunk) => chunk.id !== id));
   };
 
-  return { routine, appendChunk, removeChunk, currIndex };
+  const reorder = (source: number, destination: number) => {
+    const reordered = [...routine];
+    const [chunk] = reordered.splice(source, 1);
+    reordered.splice(destination, 0, chunk);
+    const newIndex = reordered.indexOf(currChunk);
+
+    if (newIndex !== currIndex) {
+      setCurrIndex(newIndex);
+    }
+
+    setRoutine(reordered);
+  };
+
+  return { routine, appendChunk, removeChunk, currIndex, reorder };
 }

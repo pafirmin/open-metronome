@@ -1,9 +1,10 @@
 import useProgrammer from "../../hooks/use-programmer";
 import ProgramChunkForm from "./ProgramChunkForm";
+import ProgramChunkList from "./ProgramChunkList";
 
 const CustomProgram = () => {
-  const { routine, appendChunk, removeChunk, currIndex } = useProgrammer();
-  console.log(currIndex)
+  const { routine, appendChunk, removeChunk, currIndex, reorder } =
+    useProgrammer();
 
   return (
     <div>
@@ -11,12 +12,13 @@ const CustomProgram = () => {
         Create a custom practice routine! Get started by adding some
         instructions below.
       </p>
-      <ProgramChunkForm onSubmit={(chunk) => appendChunk(chunk)} />
-      {routine.map((chunk, i) => (
-        <p key={i} style={{background: (currIndex === i ? "red" : "") }}>
-          {chunk.measures} bars of {chunk.metre} at {chunk.tempo}
-        </p>
-      ))}
+      <ProgramChunkForm onSubmit={(chunk) => appendChunk({...chunk, id: Date.now().toString()})} />
+      <ProgramChunkList
+        chunks={routine}
+        currIndex={currIndex}
+        handleRemove={removeChunk}
+        handleReorder={reorder}
+      />
     </div>
   );
 };

@@ -1,1 +1,1 @@
-export { default } from './Metronome';
+export { default } from "./Metronome";

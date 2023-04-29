@@ -1,6 +1,9 @@
 import { ProgramChunk } from "../../common/interfaces/program-chunk.interface";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
+import VolumeOffIcon from "@mui/icons-material/VolumeOff";
+import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import styled from "@emotion/styled";
+import { useState } from "react";
 
 interface Props {
   chunks: ProgramChunk[];
@@ -16,28 +19,72 @@ const StyledList = styled.ul`
   gap: 0.8rem;
   background-color: #141414;
   padding: 1rem;
-  margin: 1rem auto
+  margin: 1rem auto;
 `;
 
 const ChunkContainer = styled.div<{ active: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 0.4rem;
   text-align: center;
   background-color: #444444;
   color: #fff;
   font-size: 1.2rem;
   border-radius: 6px;
-  border: ${( { active }) => active ? "1px solid red" : "1px solid black"};
+  border: ${({ active }) => (active ? "1px solid red" : "1px solid black")};
   &:hover {
     background-color: #393939;
   }
 `;
 
-const ProgramChunkList = ({ chunks, currIndex, handleReorder }: Props) => {
+const TrashContainer = styled.div`
+  position: fixed;
+  height: 200px;
+  width: 100vw;
+  align-items: center;
+  top: 0;
+  left: 0;
+`;
+
+const TrashContent = styled.div<{ active: boolean }>`
+  font-size: 3rem;
+  color: #414141;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: ${({ active }) => (active ? "200px" : "0")};
+  width: 100vw;
+  background-color: #a6a6a6;
+  opacity: ${({ active }) => (active ? "0.9" : "0")};
+  transition: height 0.5s, opacity 0.5s;
+`;
+
+const ProgramChunkList = ({
+  chunks,
+  currIndex,
+  handleReorder,
+  handleRemove,
+}: Props) => {
+  const [isDragging, setIsDragging] = useState(false);
+
   return (
     <DragDropContext
-      onDragEnd={({ source, destination }) =>
-        handleReorder(source.index, destination?.index ?? source.index)
-      }
+      onDragEnd={({ draggableId, source, destination }) => {
+        console.log(draggableId, destination?.droppableId);
+        switch (destination?.droppableId) {
+          case "program":
+            handleReorder(source.index, destination?.index ?? source.index);
+            break;
+          case "trash":
+            handleRemove(draggableId);
+            break;
+          default:
+            break;
+        }
+        setIsDragging(false);
+      }}
+      onDragStart={() => setIsDragging(true)}
     >
       <Droppable droppableId="program">
         {(provided) => (
@@ -45,14 +92,16 @@ const ProgramChunkList = ({ chunks, currIndex, handleReorder }: Props) => {
             {chunks.map((chunk, i) => (
               <Draggable key={chunk.id} draggableId={chunk.id} index={i}>
                 {(provided) => (
-                  <li
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                  >
+                  <li ref={provided.innerRef} {...provided.draggableProps}>
                     <ChunkContainer active={currIndex === i}>
-                      {chunk.measures} bar{chunk.measures > 1 ? "s" : ""} of{" "}
-                      {chunk.metre} at {chunk.tempo} bpm
+                      <span {...provided.dragHandleProps}>
+                        <DragIndicatorIcon />
+                      </span>
+                      <span>
+                        {chunk.measures} bar{chunk.measures > 1 ? "s" : ""} of{" "}
+                        {chunk.metre} at {chunk.tempo} bpm{" "}
+                      </span>
+                      <span>{chunk.silent && <VolumeOffIcon />}</span>
                     </ChunkContainer>
                   </li>
                 )}
@@ -60,6 +109,15 @@ const ProgramChunkList = ({ chunks, currIndex, handleReorder }: Props) => {
             ))}
             {provided.placeholder}
           </StyledList>
+        )}
+      </Droppable>
+      <Droppable droppableId="trash">
+        {(provided) => (
+          <TrashContainer ref={provided.innerRef} {...provided.droppableProps}>
+            <TrashContent active={isDragging}>
+              <p>Drag to delete</p>
+            </TrashContent>
+          </TrashContainer>
         )}
       </Droppable>
     </DragDropContext>

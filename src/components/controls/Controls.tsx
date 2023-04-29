@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { IconButton, Slider } from "@mui/material";
 import AddIcon from "@mui/icons-material/AddCircleOutline";
 import RemoveIcon from "@mui/icons-material/RemoveCircleOutline";
-import {Division} from "../../ticker/ticker";
 
 const Wrapper = styled.div`
   margin: 1rem auto 0 auto;
@@ -43,24 +42,25 @@ const NoteValue = styled.span<{ selected: boolean }>`
 `;
 
 const Controls = () => {
-  const { values, setValues, isRunning, reset, startPulse } = useMetronome();
+  const { values, setValues, isRunning, reset, startPulse, isLoading } =
+    useMetronome();
   const [sliderVal, setSliderVal] = useState(values.tempo);
 
   const handleTempo = (val: number) => {
-    setValues((prev) => ({...prev, tempo: val}))
+    setValues((prev) => ({ ...prev, tempo: val }));
   };
 
   const handleAdjustMetre = (change: number) => {
-    setValues((prev) => ({...prev, metre: prev.metre + change}))
+    setValues((prev) => ({ ...prev, metre: prev.metre + change }));
   };
 
-  const handleNoteValue = (val: Division) => {
-    setValues((prev) => ({...prev, division: val}))
-  }
+  const handleNoteValue = (val: 1 | 0.5) => {
+    setValues((prev) => ({ ...prev, division: val }));
+  };
 
   useEffect(() => {
-    setSliderVal(values.tempo)
-  }, [values.tempo])
+    setSliderVal(values.tempo);
+  }, [values.tempo]);
 
   return (
     <Wrapper>
@@ -86,6 +86,7 @@ const Controls = () => {
           <span style={{ display: "block" }}>Metre</span>
           <ControlContainer>
             <IconButton
+              color="inherit"
               onClick={() => handleAdjustMetre(-1)}
               aria-label="decrement meter"
               size="large"
@@ -94,6 +95,7 @@ const Controls = () => {
             </IconButton>
             <span>{values.metre}</span>
             <IconButton
+              color="inherit"
               onClick={() => handleAdjustMetre(1)}
               aria-label="increment meter"
               size="large"
@@ -102,9 +104,9 @@ const Controls = () => {
             </IconButton>
           </ControlContainer>
         </div>
-      <StartBtn onClick={isRunning ? reset : startPulse}>
-        {isRunning ? "Stop" : "Start"}
-      </StartBtn>
+        <StartBtn onClick={isRunning ? reset : startPulse}>
+          {isLoading ? "initialising... " : isRunning ? "Stop" : "Start"}
+        </StartBtn>
         <div style={{ width: "150px" }}>
           <span style={{ display: "block" }}>Note</span>
           <ControlContainer>

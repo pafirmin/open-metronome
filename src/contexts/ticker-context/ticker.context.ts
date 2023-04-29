@@ -1,15 +1,19 @@
 import React from "react";
-import {TickerOptions} from "../../ticker/ticker";
+import { MetronomeValues } from "../../common/interfaces/metronome-values.interface";
 
-type TickerContextValue = {
-  values: TickerOptions,
-  setValues: React.Dispatch<React.SetStateAction<TickerOptions>>
-  beatCount: number;
-  reset: () => void
-  startPulse: () => void;
-  isRunning: boolean
-};
+type TickerContextValue =
+  | {
+      values: MetronomeValues;
+      setValues: React.Dispatch<React.SetStateAction<MetronomeValues>>;
+      beatCount: number;
+      reset: () => void;
+      startPulse: () => void;
+      isRunning: boolean;
+      isLoading: boolean;
+      initAudioCtx: () => Promise<void>;
+    }
+  | undefined;
 
-const TickerContext = React.createContext<TickerContextValue>({} as any);
+const TickerContext = React.createContext<TickerContextValue>(undefined);
 
 export default TickerContext;

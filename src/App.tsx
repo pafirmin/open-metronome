@@ -5,7 +5,6 @@ import CustomProgram from "./components/custom-program";
 import Metronome from "./components/metronome/Metronome";
 import TickerProvider from "./contexts/ticker-context/ticker.provider";
 import globalStyles from "./global-styles";
-import Ticker from "./ticker/ticker";
 
 const MainWrapper = styled.main`
   width: 100%;
@@ -20,7 +19,7 @@ function App() {
   const ctx = new AudioContext();
 
   return (
-    <TickerProvider ticker={new Ticker(ctx)}>
+    <TickerProvider audioContext={ctx}>
       <Global styles={globalStyles} />
       <MainWrapper>
         <Metronome />

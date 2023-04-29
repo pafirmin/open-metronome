@@ -5,7 +5,7 @@ type TickerContextValue =
   | {
       values: MetronomeValues;
       setValues: React.Dispatch<React.SetStateAction<MetronomeValues>>;
-      beatCount: number;
+      beatCount: { total: number; measure: number };
       reset: () => void;
       startPulse: () => void;
       isRunning: boolean;

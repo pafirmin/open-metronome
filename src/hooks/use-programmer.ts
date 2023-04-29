@@ -2,14 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import { ProgramChunk } from "../common/interfaces/program-chunk.interface";
 import useMetronome from "./use-metronome";
 
-/***
+/**
  * useProgrammer manages the creation of custom practice routines
  */
 
 export default function useProgrammer() {
   const { beatCount, setValues, isRunning } = useMetronome();
   const [routine, setRoutine] = useState<ProgramChunk[]>([]);
-  const [beatOffset, setBeatOffset] = useState(0);
+  const [offset, setOffset] = useState(0);
+
   // The index of the current program chunk
   const [currIndex, setCurrIndex] = useState(0);
 
@@ -27,42 +28,27 @@ export default function useProgrammer() {
     }));
   }, [currChunk, setValues]);
 
-  // Increment measuresCompleted when a chunk finishes a measure
   useEffect(() => {
     if (!currChunk) return;
 
-    const isLastBeat = beatCount - 1 - beatOffset === currChunk.measures * currChunk.metre;
-    if (isLastBeat) {
-        /***
-         * On final beat of current chunk: if chunk is last in routine, reset
-         * currIndex to 0. Else, increment currIndex to move routine along.
-         */
-      setBeatOffset((prev) => prev + currChunk.measures * currChunk.metre)
-      setCurrIndex((currIndex + 1) % routine.length);
+    if (beatCount.total - offset === currChunk.measures * currChunk.metre + 1) {
+      setCurrIndex((prev) => (prev + 1) % routine.length);
+      setOffset((prev) => prev + currChunk.measures * currChunk.metre);
     }
-  }, [beatCount, currChunk, currIndex, beatOffset, routine.length]);
+  }, [currChunk, beatCount.total, offset, routine.length]);
 
   useEffect(() => {
-    if (!isRunning && currIndex !== 0) {
+    if (!isRunning) {
       setCurrIndex(0);
-      setBeatOffset(0);
+      setOffset(0);
     }
-  }, [isRunning, currIndex]);
+  }, [isRunning]);
 
   const appendChunk = (chunk: ProgramChunk) => {
-    if (routine.length === 0) {
-      setValues((prev) => ({
-        ...prev,
-        tempo: chunk.tempo,
-        metre: chunk.metre,
-        silent: chunk.silent,
-      }));
-    }
-
     setRoutine((old) => [...old, chunk]);
   };
 
-  /***
+  /**
    * Removes the ProgramChunk with the given id
    * @param index - the id of the ProgramChunk to remove
    */

@@ -14,11 +14,12 @@ interface Props {
   audioContext: AudioContext;
 }
 
+// Length of the tick sound, in milliseconds
 const TICK_LENGTH = 0.1;
 
 const TickerProvider = ({ audioContext, children }: Props) => {
   const ctxRef = useRef(audioContext);
-  const [beatCount, setBeatCount] = useState(0);
+  const [beatCount, setBeatCount] = useState({ total: 0, measure: 0 });
   const [isRunning, setIsRunning] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [values, setValues] = useState<MetronomeValues>({
@@ -33,26 +34,26 @@ const TickerProvider = ({ audioContext, children }: Props) => {
   /**
    * High note on first beat,
    * mid note on quarter note pulse (integers),
-   * low note on 8th notes (x.5)
+   * low note on 8th notes (n.5)
    */
   const getFrequency = useCallback(() => {
     if (values.silent) {
       return 0;
-    } else if (beatCount % values.metre === 1) {
+    } else if (beatCount.measure === 1 || beatCount.measure === 0) {
       return 550;
-    } else if (Number.isInteger(beatCount)) {
+    } else if (Number.isInteger(beatCount.measure)) {
       return 450;
     } else {
       return 375;
     }
-  }, [beatCount, values.silent, values.metre]);
+  }, [beatCount, values.silent]);
 
   const startPulse = async () => {
     setIsRunning(true);
   };
 
   const reset = async () => {
-    setBeatCount(1);
+    setBeatCount({ total: 0, measure: 0 });
     setIsRunning(false);
   };
 
@@ -68,14 +69,9 @@ const TickerProvider = ({ audioContext, children }: Props) => {
     oscillator.stop(ctx.currentTime + TICK_LENGTH);
   }, [getFrequency, gainNode]);
 
-  /**
-   * ctx must be resumed or created after user gesture on page
-   */
   const initAudioCtx = async () => {
     const ctx = ctxRef.current;
-    if (ctx.state === "running") {
-      return;
-    }
+    if (ctx.state === "running") return;
 
     setIsLoading(true);
 
@@ -91,6 +87,18 @@ const TickerProvider = ({ audioContext, children }: Props) => {
     setIsLoading(false);
   };
 
+  /**
+   * ctx must be resumed or created after user gesture on page
+   */
+  useEffect(() => {
+    document.addEventListener("click", initAudioCtx);
+
+    return () => document.removeEventListener("click", initAudioCtx);
+  }, []);
+
+  /**
+   * Set up gain node
+   */
   useEffect(() => {
     gainNode.connect(ctxRef.current.destination);
     gainNode.gain.value = -0.1;
@@ -103,18 +111,35 @@ const TickerProvider = ({ audioContext, children }: Props) => {
     let timeout: NodeJS.Timeout;
 
     const pulse = () => {
-      if (!isRunning) {
-        return;
-      }
+      if (!isRunning) return;
 
+      /**
+       * Calculate time in future that next tick should be played, in milliseconds.
+       *
+       * It may be cleaner and probably more accurate to pass this to oscillator.start(),
+       * but in that case beatCount would either need to be incremented before the tick
+       * has actually played, or after it has finished playing (using oscillator.onended).
+       *
+       * Either way, the beatCount would be noticably out of sync with the audible pulse.
+       */
       const now = ctxRef.current.currentTime;
       const noteTime = now + (60 / values.tempo) * values.division;
       const delay = 1000 * (noteTime - now);
 
       timeout = setTimeout(() => {
-        tick();
-
-        setBeatCount((prev) => prev + 1 * values.division);
+        setBeatCount((prev) => ({
+          total: Math.floor(prev.total + values.division),
+          /**
+           * A beatcount of 0 essentially means the pulse has not started yet.
+           * The first beat should *always* be 1, not the '& of 4' as it would
+           * be if we incremented to 0.5 on the initial tick.
+           */
+          measure:
+            prev.measure + values.division === values.metre + 1 ||
+            prev.measure === 0
+              ? 1
+              : prev.measure + values.division,
+        }));
 
         pulse();
       }, delay);
@@ -124,6 +149,12 @@ const TickerProvider = ({ audioContext, children }: Props) => {
 
     return () => clearTimeout(timeout);
   }, [values, tick, isRunning]);
+
+  useEffect(() => {
+    if (isRunning && beatCount.total !== 0) {
+      tick();
+    }
+  }, [tick, isRunning, beatCount]);
 
   const contextValue = {
     values,

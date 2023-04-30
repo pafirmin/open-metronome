@@ -1,9 +1,7 @@
 import styled from "@emotion/styled";
-import { Button, IconButton } from "@mui/material";
+import { Button } from "@mui/material";
 import { ChangeEvent, useState } from "react";
 import { ProgramChunk } from "../../common/interfaces/program-chunk.interface";
-import VolumeUpIcon from "@mui/icons-material/VolumeUp";
-import VolumeOffIcon from "@mui/icons-material/VolumeOff";
 
 interface Props {
   onSubmit: (chunk: ProgramChunk) => void;
@@ -39,13 +37,6 @@ const ProgramChunkForm = ({ onSubmit }: Props) => {
     });
   };
 
-  const handleToggleSilent = () => {
-    setChunkValues({
-      ...chunkValues,
-      silent: !chunkValues.silent,
-    });
-  };
-
   return (
     <ProgramForm
       onSubmit={(e) => {
@@ -74,13 +65,6 @@ const ProgramChunkForm = ({ onSubmit }: Props) => {
         onChange={handleChange}
       />
       <span>bpm</span>
-      <IconButton
-        color="inherit"
-        onClick={handleToggleSilent}
-        aria-label={chunkValues.silent ? "disable silence" : "enable silence"}
-      >
-        {chunkValues.silent ? <VolumeOffIcon /> : <VolumeUpIcon />}
-      </IconButton>
       <Button type="submit" color="inherit" variant="outlined">
         add
       </Button>

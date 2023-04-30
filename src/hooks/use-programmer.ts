@@ -7,8 +7,13 @@ import useMetronome from "./use-metronome";
  */
 
 export default function useProgrammer() {
-  const { beatCount, setValues, isRunning } = useMetronome();
+  const { beatCount, setValues, isRunning, values } = useMetronome();
   const [routine, setRoutine] = useState<ProgramChunk[]>([]);
+
+  /**
+   * The total number of beats up to the start of the current chunk,
+   * used for calculating when a chunk has ended.
+   */
   const [offset, setOffset] = useState(0);
 
   // The index of the current program chunk
@@ -31,11 +36,36 @@ export default function useProgrammer() {
   useEffect(() => {
     if (!currChunk) return;
 
-    if (beatCount.total - offset === currChunk.measures * currChunk.metre + 1) {
-      setCurrIndex((prev) => (prev + 1) % routine.length);
+    /**
+     * On last beat, cycle to the next program chunk
+     */
+    const isLastBeat =
+      beatCount.total - offset + values.division ===
+      currChunk.measures * currChunk.metre + 1;
+    const isFirstBeat =
+      beatCount.total - offset === currChunk.measures * currChunk.metre + 1;
+
+    const nextIndex = (currIndex + 1) % routine.length;
+
+    if (isLastBeat && routine[nextIndex].silent !== values.silent) {
+      setValues((values) => ({ ...values, silent: routine[nextIndex].silent }));
+    }
+
+    if (isFirstBeat) {
+      setCurrIndex(nextIndex);
       setOffset((prev) => prev + currChunk.measures * currChunk.metre);
     }
-  }, [currChunk, beatCount.total, offset, routine.length]);
+  }, [
+    currChunk,
+    currIndex,
+    routine,
+    setValues,
+    values,
+    beatCount.total,
+    values.division,
+    offset,
+    routine.length,
+  ]);
 
   useEffect(() => {
     if (!isRunning) {
@@ -48,12 +78,14 @@ export default function useProgrammer() {
     setRoutine((old) => [...old, chunk]);
   };
 
-  /**
-   * Removes the ProgramChunk with the given id
-   * @param index - the id of the ProgramChunk to remove
-   */
   const removeChunk = (id: string) => {
     setRoutine((old) => old.filter((chunk) => chunk.id !== id));
+  };
+
+  const updateChunk = (id: string, params: Partial<ProgramChunk>) => {
+    setRoutine((old) =>
+      old.map((chunk) => (chunk.id === id ? { ...chunk, ...params } : chunk))
+    );
   };
 
   const reorder = (source: number, destination: number) => {
@@ -69,5 +101,5 @@ export default function useProgrammer() {
     setRoutine(reordered);
   };
 
-  return { routine, appendChunk, removeChunk, currIndex, reorder };
+  return { routine, appendChunk, removeChunk, currIndex, reorder, updateChunk };
 }

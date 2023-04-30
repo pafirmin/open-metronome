@@ -1,15 +1,18 @@
 import { ProgramChunk } from "../../common/interfaces/program-chunk.interface";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import VolumeOffIcon from "@mui/icons-material/VolumeOff";
+import VolumeUpIcon from "@mui/icons-material/VolumeUp";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import styled from "@emotion/styled";
 import { useState } from "react";
+import { IconButton } from "@mui/material";
 
 interface Props {
   chunks: ProgramChunk[];
   currIndex: number;
   handleRemove: (id: string) => void;
   handleReorder: (sourceIndex: number, destinationIndex: number) => void;
+  handleUpdate: (id: string, params: Partial<ProgramChunk>) => void;
 }
 
 const StyledList = styled.ul`
@@ -65,13 +68,15 @@ const ProgramChunkList = ({
   currIndex,
   handleReorder,
   handleRemove,
+  handleUpdate,
 }: Props) => {
   const [isDragging, setIsDragging] = useState(false);
+  const handleToggleSilent = (chunk: ProgramChunk) =>
+    handleUpdate(chunk.id, { silent: !chunk.silent });
 
   return (
     <DragDropContext
       onDragEnd={({ draggableId, source, destination }) => {
-        console.log(draggableId, destination?.droppableId);
         switch (destination?.droppableId) {
           case "program":
             handleReorder(source.index, destination?.index ?? source.index);
@@ -101,7 +106,15 @@ const ProgramChunkList = ({
                         {chunk.measures} bar{chunk.measures > 1 ? "s" : ""} of{" "}
                         {chunk.metre} at {chunk.tempo} bpm{" "}
                       </span>
-                      <span>{chunk.silent && <VolumeOffIcon />}</span>
+                      <IconButton
+                        color="inherit"
+                        onClick={() => handleToggleSilent(chunk)}
+                        aria-label={
+                          chunk.silent ? "disable silence" : "enable silence"
+                        }
+                      >
+                        {chunk.silent ? <VolumeOffIcon /> : <VolumeUpIcon />}
+                      </IconButton>
                     </ChunkContainer>
                   </li>
                 )}

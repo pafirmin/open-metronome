@@ -1,11 +1,11 @@
 import { ProgramChunk } from "../../common/interfaces/program-chunk.interface";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
-import VolumeOffIcon from "@mui/icons-material/VolumeOff";
-import VolumeUpIcon from "@mui/icons-material/VolumeUp";
-import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import styled from "@emotion/styled";
 import { useState } from "react";
-import { IconButton } from "@mui/material";
+import { OnDragEndResponder } from "react-beautiful-dnd";
+import { MdOutlineDragIndicator } from "react-icons/md";
+import { BsVolumeUp, BsVolumeMute } from "react-icons/bs";
+import IconButton from "../common/IconButton";
 
 interface Props {
   chunks: ProgramChunk[];
@@ -20,9 +20,8 @@ const StyledList = styled.ul`
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
-  background-color: #141414;
-  padding: 1rem;
-  margin: 1rem auto;
+  margin: 0;
+  padding: 0;
 `;
 
 const ChunkContainer = styled.div<{ active: boolean }>`
@@ -31,11 +30,11 @@ const ChunkContainer = styled.div<{ active: boolean }>`
   justify-content: space-between;
   padding: 0.4rem;
   text-align: center;
-  background-color: #444444;
+  background-color: ${({ theme }) => theme.background.light};
   color: #fff;
   font-size: 1.2rem;
-  border-radius: 6px;
-  border: ${({ active }) => (active ? "1px solid red" : "1px solid black")};
+  border: ${({ active, theme }) =>
+    active ? `1px solid ${theme.colors.accent.main}` : "1px solid #dfdfdf"};
   &:hover {
     background-color: #393939;
   }
@@ -71,24 +70,31 @@ const ProgramChunkList = ({
   handleUpdate,
 }: Props) => {
   const [isDragging, setIsDragging] = useState(false);
+
   const handleToggleSilent = (chunk: ProgramChunk) =>
     handleUpdate(chunk.id, { silent: !chunk.silent });
 
+  const handleDrop: OnDragEndResponder = ({
+    draggableId,
+    source,
+    destination,
+  }) => {
+    switch (destination?.droppableId) {
+      case "program":
+        handleReorder(source.index, destination?.index ?? source.index);
+        break;
+      case "trash":
+        handleRemove(draggableId);
+        break;
+      default:
+        break;
+    }
+    setIsDragging(false);
+  };
+
   return (
     <DragDropContext
-      onDragEnd={({ draggableId, source, destination }) => {
-        switch (destination?.droppableId) {
-          case "program":
-            handleReorder(source.index, destination?.index ?? source.index);
-            break;
-          case "trash":
-            handleRemove(draggableId);
-            break;
-          default:
-            break;
-        }
-        setIsDragging(false);
-      }}
+      onDragEnd={handleDrop}
       onDragStart={() => setIsDragging(true)}
     >
       <Droppable droppableId="program">
@@ -99,21 +105,22 @@ const ProgramChunkList = ({
                 {(provided) => (
                   <li ref={provided.innerRef} {...provided.draggableProps}>
                     <ChunkContainer active={currIndex === i}>
-                      <span {...provided.dragHandleProps}>
-                        <DragIndicatorIcon />
+                      <span
+                        {...provided.dragHandleProps}
+                        style={{
+                          lineHeight: 0,
+                          cursor: "grab",
+                          fontSize: "1.4rem",
+                        }}
+                      >
+                        <MdOutlineDragIndicator />
                       </span>
                       <span>
                         {chunk.measures} bar{chunk.measures > 1 ? "s" : ""} of{" "}
                         {chunk.metre} at {chunk.tempo} bpm{" "}
                       </span>
-                      <IconButton
-                        color="inherit"
-                        onClick={() => handleToggleSilent(chunk)}
-                        aria-label={
-                          chunk.silent ? "disable silence" : "enable silence"
-                        }
-                      >
-                        {chunk.silent ? <VolumeOffIcon /> : <VolumeUpIcon />}
+                      <IconButton onClick={() => handleToggleSilent(chunk)}>
+                        {chunk.silent ? <BsVolumeMute /> : <BsVolumeUp />}
                       </IconButton>
                     </ChunkContainer>
                   </li>

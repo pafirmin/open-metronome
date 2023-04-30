@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
 import { css, keyframes } from "@emotion/react";
 import { useMetronome } from "../../hooks";
-import { Box } from "@mui/material";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -58,17 +57,14 @@ const Pendulum = styled.div<PendulumProps>`
 `;
 
 const Metronome = () => {
-  const { values, isRunning, beatCount } = useMetronome();
+  const { values, isRunning } = useMetronome();
 
   return (
     <Wrapper>
-      <TempoDisplay>
-        {Number.isInteger(beatCount.measure) ? beatCount.measure : "&"}
-      </TempoDisplay>
       <TempoDisplay>{values.tempo}bpm</TempoDisplay>
-      <Box position="relative" height={300}>
+      <div style={{ height: 300, position: "relative" }}>
         <Pendulum isRunning={isRunning} tempo={values.tempo} />
-      </Box>
+      </div>
     </Wrapper>
   );
 };

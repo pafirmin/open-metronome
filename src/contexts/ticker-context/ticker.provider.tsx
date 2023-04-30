@@ -25,7 +25,6 @@ const TickerProvider = ({ audioContext, children }: Props) => {
 
   const [beatCount, setBeatCount] = useState({ total: 0, measure: 0 });
   const [isRunning, setIsRunning] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [values, setValues] = useState<MetronomeValues>({
     tempo: 120,
     metre: 4,
@@ -85,8 +84,6 @@ const TickerProvider = ({ audioContext, children }: Props) => {
     const ctx = ctxRef.current;
     if (ctx.state === "running") return;
 
-    setIsLoading(true);
-
     await ctxRef.current.resume();
     /**
      * Chrome can lie about when the CTX has really started. So we must do this workaround.
@@ -95,18 +92,7 @@ const TickerProvider = ({ audioContext, children }: Props) => {
     while (startTime === ctxRef.current.currentTime) {
       await new Promise((res) => setTimeout(res));
     }
-
-    setIsLoading(false);
   };
-
-  /**
-   * ctx must be resumed or created after user gesture on page
-   */
-  useEffect(() => {
-    document.addEventListener("click", initAudioCtx);
-
-    return () => document.removeEventListener("click", initAudioCtx);
-  }, []);
 
   /**
    * Set up gain node
@@ -170,7 +156,6 @@ const TickerProvider = ({ audioContext, children }: Props) => {
     startPulse,
     isRunning,
     reset,
-    isLoading,
     initAudioCtx,
   };
 

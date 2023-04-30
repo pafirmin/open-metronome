@@ -1,10 +1,11 @@
-import { Global } from "@emotion/react";
+import { Global, ThemeProvider } from "@emotion/react";
 import styled from "@emotion/styled";
 import Controls from "./components/controls/Controls";
-import CustomProgram from "./components/custom-program";
 import Metronome from "./components/metronome/Metronome";
+import ModeSelect from "./components/mode-select/ModeSelect";
 import TickerProvider from "./contexts/ticker-context/ticker.provider";
 import globalStyles from "./global-styles";
+import theme from "./theme";
 
 const MainWrapper = styled.main`
   width: 100%;
@@ -19,14 +20,16 @@ function App() {
   const ctx = new AudioContext();
 
   return (
-    <TickerProvider audioContext={ctx}>
-      <Global styles={globalStyles} />
-      <MainWrapper>
-        <Metronome />
-        <Controls />
-        <CustomProgram />
-      </MainWrapper>
-    </TickerProvider>
+    <ThemeProvider theme={theme}>
+      <TickerProvider audioContext={ctx}>
+        <Global styles={globalStyles} />
+        <MainWrapper>
+          <Metronome />
+          <Controls />
+          <ModeSelect />
+        </MainWrapper>
+      </TickerProvider>
+    </ThemeProvider>
   );
 }
 

@@ -9,10 +9,10 @@ interface Props {
 
 const StyledTab = styled.div<{ isActive: boolean }>`
   border-bottom: ${(props) => `2px solid ${props.theme.colors.text.main}`};
-  width: 200px;
   text-align: center;
   padding-bottom: 0.3rem;
   position: relative;
+  flex: 1;
   color: ${(props) =>
     props.isActive ? props.theme.colors.text.light : "#9d9d9d"};
   cursor: pointer;

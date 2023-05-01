@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { css, keyframes } from "@emotion/react";
 import { useMetronome } from "../../hooks";
+import useConfig from "../../hooks/use-config";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -56,14 +57,34 @@ const Pendulum = styled.div<PendulumProps>`
   }
 `;
 
+const BeatCount = styled.div`
+  font-size: 12rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-family: "Bruno Ace SC", cursive;
+`;
+
 const Metronome = () => {
-  const { values, isRunning } = useMetronome();
+  const [settings] = useConfig();
+  const { values, isRunning, beatCount } = useMetronome();
 
   return (
     <Wrapper>
       <TempoDisplay>{values.tempo}bpm</TempoDisplay>
       <div style={{ height: 300, position: "relative" }}>
-        <Pendulum isRunning={isRunning} tempo={values.tempo} />
+        {settings.display === "" ? (
+          <Pendulum isRunning={isRunning} tempo={values.tempo} />
+        ) : (
+          <BeatCount>
+            <span>
+              {Number.isInteger(beatCount.measure)
+                ? beatCount.measure || "..."
+                : "&"}
+            </span>
+          </BeatCount>
+        )}
       </div>
     </Wrapper>
   );

@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMetronome } from "../../hooks";
+import useConfig from "../../hooks/use-config";
 
 const TapBtn = styled.button`
   width: 80px;
@@ -14,7 +15,7 @@ const TapBtn = styled.button`
 `;
 
 const TapTempo = () => {
-  const { VITE_MIN_TEMPO, VITE_MAX_TEMPO } = import.meta.env;
+  const [{ MIN_TEMPO, MAX_TEMPO }] = useConfig();
   const { setValues } = useMetronome();
   const [reference, setReference] = useState(0);
 
@@ -25,16 +26,18 @@ const TapTempo = () => {
       const interval = time - reference;
       let newTempo = Math.round(60 / (interval / 1000));
 
-      if (newTempo > VITE_MAX_TEMPO) {
-        newTempo = VITE_MAX_TEMPO;
-      } else if (newTempo < VITE_MIN_TEMPO) {
-        newTempo = VITE_MIN_TEMPO;
-      }
+      newTempo = Math.max(MIN_TEMPO, Math.min(newTempo, MAX_TEMPO));
 
       setValues((prev) => ({ ...prev, tempo: newTempo }));
     }
     setReference(time);
   };
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setReference(0), 3000);
+
+    return () => clearTimeout(timeout);
+  }, [reference]);
 
   return <TapBtn onClick={handleTap}>Tap Tempo</TapBtn>;
 };

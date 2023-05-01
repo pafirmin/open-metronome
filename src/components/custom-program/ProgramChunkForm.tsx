@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { ChangeEvent, useRef, useState } from "react";
 import ReactSlider from "react-slider";
 import { ProgramChunk } from "../../common/interfaces/program-chunk.interface";
+import useConfig from "../../hooks/use-config";
 
 interface Props {
   onSubmit: (chunk: ProgramChunk) => void;
@@ -68,6 +69,7 @@ const PopoverContent = styled.div`
 `;
 
 const ProgramChunkForm = ({ onSubmit }: Props) => {
+  const [{ MIN_TEMPO, MAX_TEMPO }] = useConfig();
   const tempoRef = useRef<HTMLInputElement>(null);
   const [showSlider, setShowSlider] = useState(false);
 
@@ -118,8 +120,8 @@ const ProgramChunkForm = ({ onSubmit }: Props) => {
       <span>at</span>
       <NumberInput
         ref={tempoRef}
-        min={import.meta.env.VITE_MIN_TEMPO}
-        max={import.meta.env.VITE_MAX_TEMPO}
+        min={MIN_TEMPO}
+        max={MAX_TEMPO}
         type="number"
         name="tempo"
         value={chunkValues.tempo}
@@ -131,8 +133,8 @@ const ProgramChunkForm = ({ onSubmit }: Props) => {
         <PopoverContent>
           <ReactSlider
             value={chunkValues.tempo}
-            min={import.meta.env.VITE_MIN_TEMPO}
-            max={import.meta.env.VITE_MAX_TEMPO}
+            min={MIN_TEMPO}
+            max={MAX_TEMPO}
             onChange={(num) => setChunkValues({ ...chunkValues, tempo: num })}
             trackClassName={"sliderTrack"}
             thumbClassName={"sliderThumb"}

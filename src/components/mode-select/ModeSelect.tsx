@@ -22,7 +22,13 @@ const ModeSelect = () => {
     <Wrapper>
       <TabsProvider value={activeTab}>
         <nav>
-          <Stack gap={4} direction="row" justifyContent="space-between">
+          <Stack
+            gap={4}
+            direction="row"
+            justifyContent="space-between"
+            role="tablist"
+            aria-label="Select mode"
+          >
             <Tab title="Classic" index={0} handleClick={handleClick} />
             <Tab title="Program" index={1} handleClick={handleClick} />
             <Tab title="Ramp Tempo" index={2} handleClick={handleClick} />

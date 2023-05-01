@@ -35,7 +35,7 @@ const TickerProvider = ({ audioContext, children }: Props) => {
   const gainNode = useMemo(() => ctxRef.current.createGain(), []);
 
   /**
-   * Get the desired frequency of the NEXT note.
+   * Get the desired frequency of the next note.
    * High note on first beat,
    * mid note on quarter note pulse (integers),
    * low note on 8th notes (n.5)
@@ -107,47 +107,53 @@ const TickerProvider = ({ audioContext, children }: Props) => {
    */
   useEffect(() => {
     let timeout: NodeJS.Timeout;
+    let lastBeat: number;
 
     const pulse = () => {
-      if (!isRunning) return;
+      /**
+       * A hack to prevent double ticks on initial beat, where the zero delay
+       * causes 'pulse' to rerun before React has updated state
+       */
+      if (!isRunning || lastBeat === beatCount.total) return;
 
       /**
        * Calculate time in future that next tick should be played, in milliseconds.
        *
-       * It may be cleaner and probably more accurate to pass this to oscillator.start(),
-       * but in that case beatCount would either need to be incremented before the tick
-       * has actually played, or after it has finished playing (using oscillator.onended).
-       *
-       * Either way, the beatCount would be noticably out of sync with the audible pulse.
+       * Account for drift using the previous note time and current ctx time
        */
       const now = ctxRef.current.currentTime;
-      const noteTime =
-        (lastNoteTimeRef.current || now) +
-        (60 / values.tempo) * values.division;
-      const delay = 1000 * (noteTime - now);
+      const noteFrequency = (60 / values.tempo) * values.division;
+      const nextNoteTime = (lastNoteTimeRef.current || now) + noteFrequency;
+      const delay = 1000 * (nextNoteTime - now);
 
-      timeout = setTimeout(() => {
-        const nextBeat =
-          beatCount.measure === 0
-            ? 1
-            : (beatCount.measure % values.metre) + values.division;
+      timeout = setTimeout(
+        () => {
+          const nextBeat =
+            // First beat should always be 1
+            beatCount.measure === 0
+              ? 1
+              : (beatCount.measure % values.metre) + values.division;
 
-        tick(nextBeat);
-        lastNoteTimeRef.current = ctxRef.current.currentTime;
+          tick(nextBeat);
+          lastNoteTimeRef.current = ctxRef.current.currentTime;
 
-        setBeatCount((prev) => ({
-          total: prev.total === 0 ? 1 : prev.total + values.division,
-          measure: nextBeat,
-        }));
+          setBeatCount((prev) => ({
+            total: prev.total === 0 ? 1 : prev.total + values.division,
+            measure: nextBeat,
+          }));
 
-        pulse();
-      }, delay);
+          lastBeat = beatCount.total;
+
+          pulse();
+        },
+        beatCount.measure === 0 ? 0 : delay
+      );
     };
 
     pulse();
 
     return () => clearTimeout(timeout);
-  }, [values, tick, isRunning, beatCount.measure]);
+  }, [values, tick, isRunning, beatCount]);
 
   const contextValue = {
     values,

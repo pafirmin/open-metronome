@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { MetronomeValues } from "../../common/interfaces/metronome-values.interface";
+import useConfig from "../../hooks/use-config";
 import TickerContext from "./ticker.context";
 
 interface Props {
@@ -18,6 +19,7 @@ interface Props {
 const TICK_LENGTH = 0.1;
 
 const TickerProvider = ({ audioContext, children }: Props) => {
+  const [{ MIN_TEMPO, MAX_TEMPO }] = useConfig();
   const ctxRef = useRef(audioContext);
 
   // Used to account for time drift
@@ -94,6 +96,18 @@ const TickerProvider = ({ audioContext, children }: Props) => {
     }
   };
 
+  const updateValues = (
+    newValues: MetronomeValues | ((v: MetronomeValues) => MetronomeValues)
+  ) => {
+    if (typeof newValues === "function") {
+      newValues = newValues(values);
+    }
+
+    newValues.tempo = Math.max(MIN_TEMPO, Math.min(newValues.tempo, MAX_TEMPO));
+
+    setValues(newValues);
+  };
+
   /**
    * Set up gain node
    */
@@ -157,7 +171,7 @@ const TickerProvider = ({ audioContext, children }: Props) => {
 
   const contextValue = {
     values,
-    setValues,
+    updateValues,
     beatCount,
     startPulse,
     isRunning,

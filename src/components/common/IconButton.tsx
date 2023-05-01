@@ -1,13 +1,6 @@
 import styled from "@emotion/styled";
-import { MouseEvent, ReactNode } from "react";
 
-interface Props {
-  onClick?: (e: MouseEvent) => void;
-  children: ReactNode;
-  "aria-label"?: string;
-}
-
-const StyledButton = styled.button`
+const IconButton = styled.button`
   position: relative;
   cursor: pointer;
   background: none;
@@ -32,13 +25,5 @@ const StyledButton = styled.button`
     z-index: -1;
   }
 `;
-
-const IconButton = ({ onClick, children, ...props }: Props) => {
-  return (
-    <StyledButton aria-label={props["aria-label"]} onClick={onClick}>
-      {children}
-    </StyledButton>
-  );
-};
 
 export default IconButton;

@@ -5,21 +5,25 @@ import { IconButton, Stack } from "../common";
 import styled from "@emotion/styled";
 import useConfig from "../../hooks/use-config";
 
+interface Props {
+  disabled?: boolean;
+}
+
 const Wrapper = styled.div`
   margin-top: 1rem;
   text-align: center;
 `;
 
-const ClassicMode = () => {
+const ClassicMode = ({ disabled }: Props) => {
   const [{ MIN_TEMPO, MAX_TEMPO }] = useConfig();
-  const { values, setValues } = useMetronome();
+  const { values, updateValues } = useMetronome();
 
   const handleTempo = (val: number) => {
-    setValues((prev) => ({ ...prev, tempo: val }));
+    updateValues((prev) => ({ ...prev, tempo: val }));
   };
 
   const handleAdjustMetre = (change: number) => {
-    setValues((prev) => ({ ...prev, metre: prev.metre + change }));
+    updateValues((prev) => ({ ...prev, metre: prev.metre + change }));
   };
 
   return (
@@ -36,9 +40,9 @@ const ClassicMode = () => {
           trackClassName={"sliderTrack"}
           thumbClassName={"sliderThumb"}
           className={"slider"}
+          disabled={disabled}
         />
       </div>
-
       <div>
         <h2>Metre</h2>
         <Stack
@@ -49,6 +53,7 @@ const ClassicMode = () => {
         >
           <IconButton
             aria-label="decrement metre"
+            disabled={disabled}
             onClick={() => handleAdjustMetre(-1)}
           >
             <AiOutlineMinusCircle />
@@ -56,6 +61,7 @@ const ClassicMode = () => {
           <span>{values.metre}</span>
           <IconButton
             aria-label="increment metre"
+            disabled={disabled}
             onClick={() => handleAdjustMetre(1)}
           >
             <AiOutlinePlusCircle />

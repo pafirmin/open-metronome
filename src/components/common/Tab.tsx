@@ -12,6 +12,7 @@ const StyledTab = styled.button<{ isActive: boolean }>`
   background: none;
   border: none;
   border-bottom: ${(props) => `2px solid ${props.theme.colors.text.main}`};
+  font-size: 1rem;
   text-align: center;
   padding-bottom: 0.3rem;
   position: relative;
@@ -64,6 +65,7 @@ const Tab = ({ title, index, handleClick }: Props) => {
 
   return (
     <StyledTab
+      id={`tab=${index}`}
       role="tab"
       tabIndex={index === value ? undefined : -1}
       aria-controls={`tabpanel-${index}`}

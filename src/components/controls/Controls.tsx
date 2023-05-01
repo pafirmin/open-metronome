@@ -33,11 +33,11 @@ const StartBtn = styled.button`
 `;
 
 const Controls = () => {
-  const { values, setValues, isRunning, reset, startPulse } = useMetronome();
+  const { values, updateValues, isRunning, reset, startPulse } = useMetronome();
   const theme = useTheme();
 
   const handleNoteValue = (val: 1 | 0.5) => {
-    setValues((prev) => ({ ...prev, division: val }));
+    updateValues((prev) => ({ ...prev, division: val }));
   };
 
   return (

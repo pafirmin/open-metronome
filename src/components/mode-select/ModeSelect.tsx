@@ -5,11 +5,14 @@ import ClassicMode from "../classic-mode/ClassicMode";
 import { Stack, TabContent } from "../common";
 import Tab from "../common/Tab";
 import CustomProgram from "../custom-program/CustomProgram";
+import RampTempo from "../ramp-tempo/RampTempo";
 import Settings from "../settings/Settings";
 
 const Wrapper = styled.div`
   margin-top: 2rem;
 `;
+
+const tabs = ["Classic", "Program", "Ramp Tempo", "Settings"];
 
 const ModeSelect = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -29,10 +32,14 @@ const ModeSelect = () => {
             role="tablist"
             aria-label="Select mode"
           >
-            <Tab title="Classic" index={0} handleClick={handleClick} />
-            <Tab title="Program" index={1} handleClick={handleClick} />
-            <Tab title="Ramp Tempo" index={2} handleClick={handleClick} />
-            <Tab title="Settings" index={3} handleClick={handleClick} />
+            {tabs.map((title, i) => (
+              <Tab
+                key={title}
+                title={title}
+                index={i}
+                handleClick={handleClick}
+              />
+            ))}
           </Stack>
         </nav>
         <TabContent index={0}>
@@ -40,6 +47,9 @@ const ModeSelect = () => {
         </TabContent>
         <TabContent index={1}>
           <CustomProgram />
+        </TabContent>
+        <TabContent index={2}>
+          <RampTempo />
         </TabContent>
         <TabContent index={3}>
           <Settings />

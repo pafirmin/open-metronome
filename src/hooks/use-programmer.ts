@@ -9,7 +9,7 @@ import useMetronome from "./use-metronome";
 type Routine = ProgramChunk[];
 
 export default function useProgrammer() {
-  const { beatCount, setValues, isRunning, values } = useMetronome();
+  const { beatCount, updateValues, isRunning, values } = useMetronome();
   const [routine, setRoutine] = useState<Routine>([]);
 
   /**
@@ -38,13 +38,13 @@ export default function useProgrammer() {
   // When metronome is stopped, reset values to the first chunk of the routine
   useEffect(() => {
     if (!currChunk) return;
-    setValues((prev) => ({
+    updateValues((prev) => ({
       ...prev,
       tempo: currChunk.tempo,
       metre: currChunk.metre,
       silent: currChunk.silent,
     }));
-  }, [currChunk, setValues]);
+  }, [currChunk, updateValues]);
 
   useEffect(() => {
     if (!currChunk) return;
@@ -60,7 +60,7 @@ export default function useProgrammer() {
     // On last beat, anticipate silence setting for the next measure
     if (isLastBeat && routine[nextIndex].silent !== values.silent) {
       const next = routine[nextIndex];
-      setValues((values) => ({
+      updateValues((values) => ({
         ...values,
         silent: next.silent,
       }));
@@ -75,7 +75,7 @@ export default function useProgrammer() {
     currChunk,
     currIndex,
     routine,
-    setValues,
+    updateValues,
     beatCount.total,
     values.division,
     values.silent,

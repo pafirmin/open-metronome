@@ -3,6 +3,7 @@ import { ChangeEvent, useRef, useState } from "react";
 import ReactSlider from "react-slider";
 import { ProgramChunk } from "../../common/interfaces/program-chunk.interface";
 import useConfig from "../../hooks/use-config";
+import { NumberInput } from "../common";
 
 interface Props {
   onSubmit: (chunk: ProgramChunk) => void;
@@ -14,15 +15,6 @@ const ProgramForm = styled.form`
   justify-content: center;
   gap: 0.5rem;
   font-size: 1.2rem;
-`;
-
-const NumberInput = styled.input`
-  width: 65px;
-  height: 35px;
-  text-align: center;
-  padding: 0.4rem;
-  font-size: inherit;
-  border: none;
 `;
 
 const TempoPopover = styled.div<{

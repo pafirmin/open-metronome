@@ -27,6 +27,8 @@ const ClassicMode = () => {
       <div style={{ flexGrow: 1 }}>
         <h2>Tempo</h2>
         <ReactSlider
+          aria-label="tempo"
+          ariaValuetext={(state) => `${state.value}bpm`}
           value={values.tempo}
           min={MIN_TEMPO}
           max={MAX_TEMPO}

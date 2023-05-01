@@ -3,6 +3,10 @@ import React from "react";
 type TabsContextValue =
   | {
       value: number;
+      focusedIndex: number;
+      registerTab: (i: number) => void;
+      handleNextTab: () => void;
+      handlePrevTab: () => void;
     }
   | undefined;
 

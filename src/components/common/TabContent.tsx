@@ -9,11 +9,16 @@ interface Props {
 const TabContent = ({ index, children }: Props) => {
   const { value } = useTabs();
 
-  if (value !== index) {
-    return null;
-  }
-
-  return children;
+  return (
+    <div
+      role="tabpanel"
+      tabIndex={0}
+      id={`tabpanel-${index}`}
+      aria-labelledby={`tab-${index}`}
+    >
+      {value === index && children}
+    </div>
+  );
 };
 
 export default TabContent;

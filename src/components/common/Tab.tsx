@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { KeyboardEvent, useEffect, useRef } from "react";
 import { useTabs } from "../../hooks";
 
 interface Props {
@@ -7,14 +8,16 @@ interface Props {
   handleClick: (val: number) => void;
 }
 
-const StyledTab = styled.div<{ isActive: boolean }>`
+const StyledTab = styled.button<{ isActive: boolean }>`
+  background: none;
+  border: none;
   border-bottom: ${(props) => `2px solid ${props.theme.colors.text.main}`};
   text-align: center;
   padding-bottom: 0.3rem;
   position: relative;
   flex: 1;
   color: ${(props) =>
-    props.isActive ? props.theme.colors.text.light : "#9d9d9d"};
+    props.isActive ? props.theme.colors.text.main : "#9d9d9d"};
   cursor: pointer;
   transition: color 0.3s;
 
@@ -32,10 +35,44 @@ const StyledTab = styled.div<{ isActive: boolean }>`
 `;
 
 const Tab = ({ title, index, handleClick }: Props) => {
-  const { value } = useTabs();
+  const { value, focusedIndex, handleNextTab, handlePrevTab, registerTab } =
+    useTabs();
+  const tabRef = useRef<HTMLButtonElement>(null);
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case "ArrowRight":
+        handleNextTab();
+        break;
+      case "ArrowLeft":
+        handlePrevTab();
+        break;
+      default:
+        break;
+    }
+  };
+
+  useEffect(() => {
+    registerTab(index);
+  }, [registerTab, index]);
+
+  useEffect(() => {
+    if (focusedIndex === index) {
+      tabRef.current?.focus();
+    }
+  }, [focusedIndex, index]);
 
   return (
-    <StyledTab isActive={index === value} onClick={() => handleClick(index)}>
+    <StyledTab
+      role="tab"
+      tabIndex={index === value ? undefined : -1}
+      aria-controls={`tabpanel-${index}`}
+      aria-selected={index === focusedIndex}
+      isActive={index === value}
+      onClick={() => handleClick(index)}
+      onKeyDown={handleKeyDown}
+      ref={tabRef}
+    >
       {title}
     </StyledTab>
   );

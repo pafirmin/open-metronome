@@ -6,9 +6,11 @@ import useMetronome from "./use-metronome";
  * useProgrammer manages the creation of custom practice routines
  */
 
+type Routine = ProgramChunk[];
+
 export default function useProgrammer() {
   const { beatCount, setValues, isRunning, values } = useMetronome();
-  const [routine, setRoutine] = useState<ProgramChunk[]>([]);
+  const [routine, setRoutine] = useState<Routine>([]);
 
   /**
    * The total number of beats up to the start of the current chunk,
@@ -21,10 +23,21 @@ export default function useProgrammer() {
 
   const currChunk = useMemo(() => routine[currIndex], [routine, currIndex]);
 
-  // When currChunk changes, set metronome values to new chunk settings
+  const persistRoutine = (updated: Routine) => {
+    localStorage.setItem("routine", JSON.stringify(updated));
+  };
+
+  useEffect(() => {
+    const stored = localStorage.getItem("routine");
+
+    if (stored) {
+      setRoutine(JSON.parse(stored));
+    }
+  }, []);
+
+  // When metronome is stopped, reset values to the first chunk of the routine
   useEffect(() => {
     if (!currChunk) return;
-
     setValues((prev) => ({
       ...prev,
       tempo: currChunk.tempo,
@@ -36,9 +49,6 @@ export default function useProgrammer() {
   useEffect(() => {
     if (!currChunk) return;
 
-    /**
-     * On last beat, cycle to the next program chunk
-     */
     const isLastBeat =
       beatCount.total - offset + values.division ===
       currChunk.measures * currChunk.metre + 1;
@@ -47,10 +57,16 @@ export default function useProgrammer() {
 
     const nextIndex = (currIndex + 1) % routine.length;
 
+    // On last beat, anticipate silence setting for the next measure
     if (isLastBeat && routine[nextIndex].silent !== values.silent) {
-      setValues((values) => ({ ...values, silent: routine[nextIndex].silent }));
+      const next = routine[nextIndex];
+      setValues((values) => ({
+        ...values,
+        silent: next.silent,
+      }));
     }
 
+    // On first beat, update current chunk index
     if (isFirstBeat) {
       setCurrIndex(nextIndex);
       setOffset((prev) => prev + currChunk.measures * currChunk.metre);
@@ -60,46 +76,31 @@ export default function useProgrammer() {
     currIndex,
     routine,
     setValues,
-    values,
     beatCount.total,
     values.division,
+    values.silent,
     offset,
     routine.length,
   ]);
 
+  // reset state
   useEffect(() => {
-    if (!isRunning) {
-      setCurrIndex(0);
-      setOffset(0);
-    }
+    if (isRunning) return;
+    setCurrIndex(0);
+    setOffset(0);
   }, [isRunning]);
 
-  const appendChunk = (chunk: ProgramChunk) => {
-    setRoutine((old) => [...old, chunk]);
-  };
+  const updateRoutine = (newValue: Routine) => {
+    setRoutine(newValue);
+    persistRoutine(newValue);
 
-  const removeChunk = (id: string) => {
-    setRoutine((old) => old.filter((chunk) => chunk.id !== id));
-  };
+    // reflect change in routine order in currently playing routine
+    const newIndex = newValue.indexOf(currChunk);
 
-  const updateChunk = (id: string, params: Partial<ProgramChunk>) => {
-    setRoutine((old) =>
-      old.map((chunk) => (chunk.id === id ? { ...chunk, ...params } : chunk))
-    );
-  };
-
-  const reorder = (source: number, destination: number) => {
-    const reordered = [...routine];
-    const [chunk] = reordered.splice(source, 1);
-    reordered.splice(destination, 0, chunk);
-    const newIndex = reordered.indexOf(currChunk);
-
-    if (newIndex !== currIndex) {
+    if (isRunning && newIndex !== currIndex) {
       setCurrIndex(newIndex);
     }
-
-    setRoutine(reordered);
   };
 
-  return { routine, appendChunk, removeChunk, currIndex, reorder, updateChunk };
+  return { routine, currIndex, updateRoutine };
 }

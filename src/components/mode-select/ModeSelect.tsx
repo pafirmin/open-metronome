@@ -5,6 +5,7 @@ import ClassicMode from "../classic-mode/ClassicMode";
 import { Stack, TabContent } from "../common";
 import Tab from "../common/Tab";
 import CustomProgram from "../custom-program/CustomProgram";
+import Settings from "../settings/Settings";
 
 const Wrapper = styled.div`
   margin-top: 2rem;
@@ -12,7 +13,6 @@ const Wrapper = styled.div`
 
 const ModeSelect = () => {
   const [activeTab, setActiveTab] = useState(0);
-  console.log(activeTab);
 
   const handleClick = (i: number) => {
     setActiveTab(i);
@@ -21,15 +21,22 @@ const ModeSelect = () => {
   return (
     <Wrapper>
       <TabsProvider value={activeTab}>
-        <Stack direction="row" justifyContent="space-between">
-          <Tab title="Classic" index={0} handleClick={handleClick} />
-          <Tab title="Program" index={1} handleClick={handleClick} />
-        </Stack>
+        <nav>
+          <Stack gap={4} direction="row" justifyContent="space-between">
+            <Tab title="Classic" index={0} handleClick={handleClick} />
+            <Tab title="Program" index={1} handleClick={handleClick} />
+            <Tab title="Ramp Tempo" index={2} handleClick={handleClick} />
+            <Tab title="Settings" index={3} handleClick={handleClick} />
+          </Stack>
+        </nav>
         <TabContent index={0}>
           <ClassicMode />
         </TabContent>
         <TabContent index={1}>
           <CustomProgram />
+        </TabContent>
+        <TabContent index={3}>
+          <Settings />
         </TabContent>
       </TabsProvider>
     </Wrapper>

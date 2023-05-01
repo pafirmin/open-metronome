@@ -42,15 +42,15 @@ const Controls = () => {
 
   return (
     <Wrapper>
-      <Stack alignItems="center" style={{ width: "150px" }}>
+      <Stack alignItems="center" style={{ width: "33%" }}>
         <TapTempo />
       </Stack>
       <StartBtn onClick={isRunning ? reset : startPulse}>
         {isRunning ? "Stop" : "Start"}
       </StartBtn>
-      <div style={{ width: "150px" }}>
+      <div style={{ width: "33%" }}>
         <span style={{ display: "block" }}>Note</span>
-        <Stack direction="row" justifyContent="space-between">
+        <Stack direction="row" justifyContent="space-around">
           <IconButton
             aria-label="quarter note pulse"
             onClick={() => handleNoteValue(1)}

@@ -8,7 +8,11 @@ export default (theme: Theme) => css`
   body {
     background-color: ${theme.background.main};
     color: ${theme.colors.text.main};
-    font-family: "Montserrat", sans-serif;
+    font-family: "Roboto", "Montserrat", sans-serif;
+  }
+
+  h2 {
+    margin-bottom: 0.5rem;
   }
   /* Number input buttons always visible */
   input[type="number"]::-webkit-inner-spin-button,

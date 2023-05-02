@@ -5,6 +5,10 @@ export default (theme: Theme) => css`
     box-sizing: border-box;
   }
 
+  html {
+    font-size: 18px;
+  }
+
   body {
     background-color: ${theme.background.main};
     color: ${theme.colors.text.main};
@@ -12,6 +16,12 @@ export default (theme: Theme) => css`
   }
 
   h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+
+  h3 {
+    margin-top: 0;
     margin-bottom: 0.5rem;
   }
   /* Number input buttons always visible */

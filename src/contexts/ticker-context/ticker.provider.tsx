@@ -88,24 +88,12 @@ const TickerProvider = ({ audioContext, children }: Props) => {
 
     await ctxRef.current.resume();
     /**
-     * Chrome can lie about when the CTX has really started. So we must do this workaround.
+     * Chrome can lie about when the CTX has really started. So we must use this workaround.
      */
     const startTime = ctxRef.current.currentTime;
     while (startTime === ctxRef.current.currentTime) {
       await new Promise((res) => setTimeout(res));
     }
-  };
-
-  const updateValues = (
-    newValues: MetronomeValues | ((v: MetronomeValues) => MetronomeValues)
-  ) => {
-    if (typeof newValues === "function") {
-      newValues = newValues(values);
-    }
-
-    newValues.tempo = Math.max(MIN_TEMPO, Math.min(newValues.tempo, MAX_TEMPO));
-
-    setValues(newValues);
   };
 
   /**
@@ -149,14 +137,13 @@ const TickerProvider = ({ audioContext, children }: Props) => {
               : (beatCount.measure % values.metre) + values.division;
 
           tick(nextBeat);
+          lastBeat = beatCount.total;
           lastNoteTimeRef.current = ctxRef.current.currentTime;
 
           setBeatCount((prev) => ({
             total: prev.total === 0 ? 1 : prev.total + values.division,
             measure: nextBeat,
           }));
-
-          lastBeat = beatCount.total;
 
           pulse();
         },
@@ -171,8 +158,8 @@ const TickerProvider = ({ audioContext, children }: Props) => {
 
   const contextValue = {
     values,
-    updateValues,
     beatCount,
+    setValues,
     startPulse,
     isRunning,
     reset,

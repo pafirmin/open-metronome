@@ -1,15 +1,18 @@
 import styled from "@emotion/styled";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useMetronome } from "../../hooks";
+import useConfig from "../../hooks/use-config";
 import ClassicMode from "../classic-mode/ClassicMode";
 import { NumberInput, Stack } from "../common";
 
 const Wrapper = styled.div`
   margin-top: 2rem;
+  text-align: center;
 `;
 
 const RampTempo = () => {
-  const { beatCount, values, updateValues, isRunning } = useMetronome();
+  const [{ MIN_TEMPO, MAX_TEMPO }] = useConfig();
+  const { beatCount, values, setValues, isRunning } = useMetronome();
   const [rampValues, setRampValues] = useState({
     amount: 10,
     frequency: 2,
@@ -32,12 +35,22 @@ const RampTempo = () => {
   useEffect(() => {
     if (rampValues.frequency === completedMeasres) {
       setCompletedMeasures(0);
-      updateValues((prev) => ({
+      setValues((prev) => ({
         ...prev,
-        tempo: prev.tempo + rampValues.amount,
+        tempo: Math.max(
+          MIN_TEMPO,
+          Math.min(prev.tempo + rampValues.amount, MAX_TEMPO)
+        ),
       }));
     }
-  }, [rampValues.frequency, rampValues.amount, completedMeasres, updateValues]);
+  }, [
+    MIN_TEMPO,
+    MAX_TEMPO,
+    rampValues.frequency,
+    rampValues.amount,
+    completedMeasres,
+    setValues,
+  ]);
 
   useEffect(() => {
     if (!isRunning && completedMeasres > 0) {
@@ -47,6 +60,7 @@ const RampTempo = () => {
 
   return (
     <Wrapper>
+      <h2>Ramp Tempo</h2>
       <Stack
         direction="row"
         alignItems="center"

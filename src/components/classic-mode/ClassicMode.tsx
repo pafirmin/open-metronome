@@ -10,26 +10,26 @@ interface Props {
 }
 
 const Wrapper = styled.div`
-  margin-top: 1rem;
+  margin-top: 2rem;
   text-align: center;
 `;
 
-const ClassicMode = ({ disabled }: Props) => {
+const ClassicMode = ({ disabled = false }: Props) => {
   const [{ MIN_TEMPO, MAX_TEMPO }] = useConfig();
-  const { values, updateValues } = useMetronome();
+  const { values, setValues } = useMetronome();
 
   const handleTempo = (val: number) => {
-    updateValues((prev) => ({ ...prev, tempo: val }));
+    setValues((prev) => ({ ...prev, tempo: val }));
   };
 
   const handleAdjustMetre = (change: number) => {
-    updateValues((prev) => ({ ...prev, metre: prev.metre + change }));
+    setValues((prev) => ({ ...prev, metre: prev.metre + change }));
   };
 
   return (
     <Wrapper>
-      <div style={{ flexGrow: 1 }}>
-        <h2>Tempo</h2>
+      <div style={{ marginBottom: "2rem" }}>
+        <h3>Tempo</h3>
         <ReactSlider
           aria-label="tempo"
           ariaValuetext={(state) => `${state.value}bpm`}
@@ -43,31 +43,29 @@ const ClassicMode = ({ disabled }: Props) => {
           disabled={disabled}
         />
       </div>
-      <div>
-        <h2>Metre</h2>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          style={{ fontSize: "1.4rem", margin: "auto", width: "120px" }}
+      <h3>Metre</h3>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        style={{ fontSize: "1.4rem", margin: "auto", width: "120px" }}
+      >
+        <IconButton
+          aria-label="decrement metre"
+          disabled={disabled}
+          onClick={() => handleAdjustMetre(-1)}
         >
-          <IconButton
-            aria-label="decrement metre"
-            disabled={disabled}
-            onClick={() => handleAdjustMetre(-1)}
-          >
-            <AiOutlineMinusCircle />
-          </IconButton>
-          <span>{values.metre}</span>
-          <IconButton
-            aria-label="increment metre"
-            disabled={disabled}
-            onClick={() => handleAdjustMetre(1)}
-          >
-            <AiOutlinePlusCircle />
-          </IconButton>
-        </Stack>
-      </div>
+          <AiOutlineMinusCircle />
+        </IconButton>
+        <span>{values.metre}</span>
+        <IconButton
+          aria-label="increment metre"
+          disabled={disabled}
+          onClick={() => handleAdjustMetre(1)}
+        >
+          <AiOutlinePlusCircle />
+        </IconButton>
+      </Stack>
     </Wrapper>
   );
 };

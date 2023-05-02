@@ -5,13 +5,8 @@ import ProgramChunkForm from "./ProgramChunkForm";
 import ProgramChunkList from "./ProgramChunkList";
 
 const Container = styled.div`
-  border: 1px solid #dfdfdf;
-  padding: 1rem;
-  margin-top: 1rem;
+  margin-top: 2rem;
   text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
 `;
 
 const CustomProgram = () => {
@@ -44,6 +39,7 @@ const CustomProgram = () => {
 
   return (
     <Container>
+      <h2>Custom Program</h2>
       <ProgramChunkForm
         onSubmit={(chunk) =>
           appendChunk({ ...chunk, id: Date.now().toString() })

@@ -33,7 +33,7 @@ const TickerProvider = ({ audioContext, children }: Props) => {
     silent: false,
   });
 
-  const gainNode = useMemo(() => ctxRef.current.createGain(), []);
+  const gainNodeRef = useRef(ctxRef.current.createGain());
 
   /**
    * Get the desired frequency of the next note.
@@ -72,13 +72,18 @@ const TickerProvider = ({ audioContext, children }: Props) => {
   const tick = useCallback(
     (nextNote: number) => {
       const ctx = ctxRef.current;
+      const gainNode = gainNodeRef.current;
       const oscillator = ctx.createOscillator();
-      oscillator.connect(gainNode);
+      const now = ctx.currentTime;
+
+      gainNode.gain.setValueAtTime(0.04, now);
+      gainNode.gain.linearRampToValueAtTime(0, now + TICK_LENGTH);
+      oscillator.connect(gainNodeRef.current);
       oscillator.frequency.value = getFrequency(nextNote);
       oscillator.start();
-      oscillator.stop(ctx.currentTime + TICK_LENGTH);
+      oscillator.stop(now + TICK_LENGTH);
     },
-    [getFrequency, gainNode]
+    [getFrequency]
   );
 
   const initAudioCtx = async () => {
@@ -101,9 +106,8 @@ const TickerProvider = ({ audioContext, children }: Props) => {
    * Set up gain node
    */
   useEffect(() => {
-    gainNode.connect(ctxRef.current.destination);
-    gainNode.gain.value = -0.1;
-  }, [gainNode]);
+    gainNodeRef.current.connect(ctxRef.current.destination);
+  }, []);
 
   /**
    * Initialise pulse
@@ -131,11 +135,15 @@ const TickerProvider = ({ audioContext, children }: Props) => {
 
       timeout = setTimeout(
         () => {
-          const nextBeat =
+          let nextBeat =
             // First beat should always be 1
             beatCount.measure === 0
               ? 1
               : (beatCount.measure % values.metre) + values.division;
+
+          if (values.division === 1) {
+            nextBeat = Math.floor(nextBeat);
+          }
 
           tick(nextBeat);
           lastBeat = beatCount.total;

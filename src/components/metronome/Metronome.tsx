@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { css, keyframes } from "@emotion/react";
-import { useMetronome } from "../../hooks";
+import { useMetronome, useTapTempo } from "../../hooks";
 import useConfig from "../../hooks/use-config";
 
 const Wrapper = styled.div`
@@ -12,6 +12,7 @@ const TempoDisplay = styled.span`
   display: block;
   font-size: 3rem;
   text-align: center;
+  user-select: none;
 `;
 
 const swing = keyframes`
@@ -64,17 +65,19 @@ const BeatCount = styled.div`
   align-items: center;
   height: 100%;
   font-family: "Bruno Ace SC", cursive;
+  user-select: none;
 `;
 
 const Metronome = () => {
   const [settings] = useConfig();
   const { values, isRunning, beatCount } = useMetronome();
+  const handleTap = useTapTempo();
 
   return (
-    <Wrapper>
+    <Wrapper onClick={handleTap}>
       <TempoDisplay>{values.tempo}bpm</TempoDisplay>
-      <div style={{ height: 300, position: "relative" }}>
-        {settings.display === "" ? (
+      <div style={{ height: 250, position: "relative" }}>
+        {settings.display === "pendulum" ? (
           <Pendulum isRunning={isRunning} tempo={values.tempo} />
         ) : (
           <BeatCount>

@@ -1,10 +1,9 @@
-import styled from "@emotion/styled";
-import { useMetronome } from "../../hooks";
-import { SlMusicToneAlt, SlMusicTone } from "react-icons/sl";
-import { IconButton } from "../common";
 import { useTheme } from "@emotion/react";
-import { Stack } from "../common";
-import TapTempo from "./TapTempo";
+import styled from "@emotion/styled";
+import { Tooltip } from "react-tooltip";
+import { SlMusicTone, SlMusicToneAlt, SlQuestion } from "react-icons/sl";
+import { useMetronome } from "../../hooks";
+import { IconButton, Stack } from "../common";
 
 const Wrapper = styled.div`
   margin: 1rem auto 0 auto;
@@ -28,29 +27,34 @@ const StartBtn = styled.button`
   height: 50px;
 
   &:hover {
-    background: #33489b;
+    background: #3b639a;
   }
 `;
 
 const Controls = () => {
-  const { values, updateValues, isRunning, reset, startPulse } = useMetronome();
+  const { values, setValues, isRunning, reset, startPulse } = useMetronome();
   const theme = useTheme();
 
   const handleNoteValue = (val: 1 | 0.5) => {
-    updateValues((prev) => ({ ...prev, division: val }));
+    setValues((prev) => ({ ...prev, division: val }));
   };
 
   return (
     <Wrapper>
-      <Stack alignItems="center" style={{ width: "33%" }}>
-        <TapTempo />
+      <Stack alignItems="center" style={{ width: "33%" }} gap={12}>
+        Tap Tempo
+        <SlQuestion id="tap-tempo" size="1.7rem" />
+        <Tooltip anchorSelect="#tap-tempo" clickable>
+          You can set the tempo by tapping a beat anywhere on the top half of
+          this app
+        </Tooltip>
       </Stack>
       <StartBtn onClick={isRunning ? reset : startPulse}>
         {isRunning ? "Stop" : "Start"}
       </StartBtn>
-      <div style={{ width: "33%" }}>
-        <span style={{ display: "block" }}>Note</span>
-        <Stack direction="row" justifyContent="space-around">
+      <Stack style={{ width: "33%" }} gap={12}>
+        <span style={{ display: "block" }}>Note Value</span>
+        <Stack direction="row" justifyContent="space-between">
           <IconButton
             aria-label="quarter note pulse"
             onClick={() => handleNoteValue(1)}
@@ -72,7 +76,7 @@ const Controls = () => {
             />
           </IconButton>
         </Stack>
-      </div>
+      </Stack>
     </Wrapper>
   );
 };

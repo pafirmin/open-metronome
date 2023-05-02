@@ -1,5 +1,6 @@
 {
   "name": "open-metronome",
+  "homepage": "https://pafirmin.github.io/open-metronome",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -7,7 +8,9 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@emotion/react": "11.10.6",
@@ -34,6 +37,7 @@
     "eslint": "8.38.0",
     "eslint-plugin-react": "7.32.2",
     "eslint-plugin-react-hooks": "4.6.0",
+    "gh-pages": "5.0.0",
     "jsdom": "21.1.1",
     "typescript": "4.9.5",
     "vite": "^4.1.0",

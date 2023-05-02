@@ -26,6 +26,7 @@ const StyledList = styled.ul`
 `;
 
 const ChunkContainer = styled.div<{ active: boolean }>`
+  margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;

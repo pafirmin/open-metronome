@@ -1,14 +1,8 @@
-import styled from "@emotion/styled";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, Fragment, useEffect, useState } from "react";
 import { useMetronome } from "../../hooks";
 import useConfig from "../../hooks/use-config";
 import ClassicMode from "../classic-mode/ClassicMode";
 import { NumberInput, Stack } from "../common";
-
-const Wrapper = styled.div`
-  margin-top: 2rem;
-  text-align: center;
-`;
 
 const RampTempo = () => {
   const [{ MIN_TEMPO, MAX_TEMPO }] = useConfig();
@@ -59,13 +53,13 @@ const RampTempo = () => {
   }, [isRunning, completedMeasres]);
 
   return (
-    <Wrapper>
-      <h2>Ramp Tempo</h2>
+    <Fragment>
       <Stack
         direction="row"
         alignItems="center"
         justifyContent="center"
-        gap={12}
+        gap={8}
+        style={{ marginBottom: "1rem" }}
       >
         <label htmlFor="amount">Ramp by</label>
         <NumberInput
@@ -90,7 +84,7 @@ const RampTempo = () => {
         <label htmlFor="frequency">measures</label>
       </Stack>
       <ClassicMode disabled={isRunning} />
-    </Wrapper>
+    </Fragment>
   );
 };
 

@@ -16,10 +16,6 @@ const Wrapper = styled.div`
 
 const StartBtn = styled(Button)`
   padding: 0.8rem 2rem 0.8rem 2rem;
-
-  &:hover {
-    background: #3b639a;
-  }
 `;
 
 const Controls = () => {
@@ -35,7 +31,11 @@ const Controls = () => {
       <Stack alignItems="center" style={{ width: "33%" }} gap={12}>
         Tap Tempo
         <SlQuestion id="tap-tempo" size="1.7rem" />
-        <Tooltip anchorSelect="#tap-tempo" clickable>
+        <Tooltip
+          anchorSelect="#tap-tempo"
+          clickable
+          style={{ maxWidth: "240px" }}
+        >
           You can set the tempo by tapping a beat anywhere on the top half of
           this app
         </Tooltip>

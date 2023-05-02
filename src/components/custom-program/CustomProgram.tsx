@@ -1,13 +1,8 @@
-import styled from "@emotion/styled";
+import { Fragment } from "react";
 import { ProgramChunk } from "../../common/interfaces/program-chunk.interface";
 import useProgrammer from "../../hooks/use-programmer";
 import ProgramChunkForm from "./ProgramChunkForm";
 import ProgramChunkList from "./ProgramChunkList";
-
-const Container = styled.div`
-  margin-top: 2rem;
-  text-align: center;
-`;
 
 const CustomProgram = () => {
   const { routine, updateRoutine, currIndex } = useProgrammer();
@@ -38,8 +33,7 @@ const CustomProgram = () => {
   };
 
   return (
-    <Container>
-      <h2>Custom Program</h2>
+    <Fragment>
       <ProgramChunkForm
         onSubmit={(chunk) =>
           appendChunk({ ...chunk, id: Date.now().toString() })
@@ -53,7 +47,7 @@ const CustomProgram = () => {
         handleRemove={removeChunk}
         handleReorder={reorder}
       />
-    </Container>
+    </Fragment>
   );
 };
 

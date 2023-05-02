@@ -8,7 +8,7 @@ import RampTempo from "../ramp-tempo/RampTempo";
 import Settings from "../settings/Settings";
 
 const Wrapper = styled.div`
-  margin-top: 2rem;
+  margin-top: 1rem;
 `;
 
 const tabs = ["Classic", "Program", "Ramp Tempo", "Settings"];

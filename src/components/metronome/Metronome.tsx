@@ -11,13 +11,17 @@ const Wrapper = styled.div`
 
 const TempoDisplay = styled.span<{ show: boolean }>`
   display: block;
-  font-size: 3rem;
+  font-size: 2rem;
   text-align: center;
   user-select: none;
   visibility: ${(props) => (props.show ? "visible" : "hidden")};
   opacity: ${(props) => (props.show ? "1" : "0")};
   transition: opacity 1s, visibility 1s;
   transition-delay: 1s;
+
+  ${breakPoints.md} {
+    font-size: 3rem;
+  }
 `;
 
 const BeatCount = styled.div`
@@ -32,7 +36,7 @@ const BeatCount = styled.div`
 
 const PendulumWrapper = styled.div`
   position: relative;
-  height: 175px;
+  height: 155px;
 
   ${breakPoints.sm} {
     height: 250px;

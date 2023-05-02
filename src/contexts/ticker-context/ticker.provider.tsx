@@ -7,7 +7,6 @@ import {
   useState,
 } from "react";
 import { MetronomeValues } from "../../common/interfaces/metronome-values.interface";
-import useConfig from "../../hooks/use-config";
 import TickerContext from "./ticker.context";
 
 interface Props {
@@ -19,7 +18,7 @@ interface Props {
 const TICK_LENGTH = 0.1;
 
 const TickerProvider = ({ audioContext, children }: Props) => {
-  const [{ MIN_TEMPO, MAX_TEMPO }] = useConfig();
+  const [isInitialised, setIsInitialised] = useState(false);
   const ctxRef = useRef(audioContext);
 
   // Used to account for time drift
@@ -94,6 +93,8 @@ const TickerProvider = ({ audioContext, children }: Props) => {
     while (startTime === ctxRef.current.currentTime) {
       await new Promise((res) => setTimeout(res));
     }
+
+    setIsInitialised(true);
   };
 
   /**
@@ -163,6 +164,7 @@ const TickerProvider = ({ audioContext, children }: Props) => {
     startPulse,
     isRunning,
     reset,
+    isInitialised,
     initAudioCtx,
   };
 

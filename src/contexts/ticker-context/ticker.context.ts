@@ -9,6 +9,7 @@ type TickerContextValue =
       reset: () => void;
       startPulse: () => void;
       isRunning: boolean;
+      isInitialised: boolean;
       initAudioCtx: () => Promise<void>;
     }
   | undefined;

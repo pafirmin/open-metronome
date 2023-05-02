@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { Tooltip } from "react-tooltip";
 import { SlMusicTone, SlMusicToneAlt, SlQuestion } from "react-icons/sl";
 import { useMetronome } from "../../hooks";
-import { IconButton, Stack } from "../common";
+import { Button, IconButton, Stack } from "../common";
 
 const Wrapper = styled.div`
   margin: 1rem auto 0 auto;
@@ -14,17 +14,8 @@ const Wrapper = styled.div`
   margintop: 1rem;
 `;
 
-const StartBtn = styled.button`
-  border-radius: 0;
-  font-size: 1.6em;
-  padding: 0.6rem 1rem;
-  background: ${({ theme }) => theme.colors.primary.main};
-  font: inherit;
-  color: inherit;
-  border: 1px solid #bdbdbd;
-  cursor: pointer;
-  width: 100px;
-  height: 50px;
+const StartBtn = styled(Button)`
+  padding: 0.8rem 2rem 0.8rem 2rem;
 
   &:hover {
     background: #3b639a;

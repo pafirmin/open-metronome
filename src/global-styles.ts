@@ -1,4 +1,5 @@
 import { css, Theme } from "@emotion/react";
+import { breakPoints } from "./theme";
 
 export default (theme: Theme) => css`
   * {
@@ -6,13 +7,15 @@ export default (theme: Theme) => css`
   }
 
   html {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   body {
     background-color: ${theme.background.main};
     color: ${theme.colors.text.main};
     font-family: "Roboto", "Montserrat", sans-serif;
+    padding: 0;
+    margin: 0;
   }
 
   h2 {
@@ -56,5 +59,9 @@ export default (theme: Theme) => css`
 
   .sliderThumb:hover {
     box-shadow: 0 0 0 8px #ea585854;
+  }
+
+  ${breakPoints.sm} {
+    font-size: 18px;
   }
 `;

@@ -1,21 +1,22 @@
 import { Global, ThemeProvider } from "@emotion/react";
 import styled from "@emotion/styled";
-import Controls from "./components/controls/Controls";
+import { useMemo } from "react";
 import Metronome from "./components/metronome/Metronome";
-import ModeSelect from "./components/mode-select/ModeSelect";
 import ConfigProvider from "./contexts/config-context/config.provider";
 import TickerProvider from "./contexts/ticker-context/ticker.provider";
 import globalStyles from "./global-styles";
 import theme from "./theme";
+import LandingPage from "./components/landing-page/LandingPage";
+import MainInterface from "./components/main-interface";
 
 const MainWrapper = styled.main`
-  width: 100%;
   margin: 3rem auto 0 auto;
-  max-width: 600px;
+  /* height: 100vh; */
+  position: relative;
 `;
 
 function App() {
-  const ctx = new AudioContext();
+  const ctx = useMemo(() => new AudioContext(), []);
 
   return (
     <ConfigProvider>
@@ -24,8 +25,8 @@ function App() {
           <Global styles={globalStyles} />
           <MainWrapper>
             <Metronome />
-            <Controls />
-            <ModeSelect />
+            <LandingPage />
+            <MainInterface />
           </MainWrapper>
         </TickerProvider>
       </ThemeProvider>

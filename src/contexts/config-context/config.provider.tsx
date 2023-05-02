@@ -14,6 +14,21 @@ const ConfigProvider = ({ children }: Props) => {
     display: "pendulum",
   });
 
+  const persistSettings = (settings: UserSettings) => {
+    localStorage.setItem("config", JSON.stringify(settings));
+  };
+
+  const updateSettings = (
+    newValues: UserSettings | ((s: UserSettings) => UserSettings)
+  ) => {
+    if (typeof newValues === "function") {
+      newValues = newValues(userSettings);
+    }
+
+    setUserSettings(newValues);
+    persistSettings(newValues);
+  };
+
   useEffect(() => {
     const savedSettings = localStorage.getItem("config");
 
@@ -27,7 +42,7 @@ const ConfigProvider = ({ children }: Props) => {
 
   return (
     <ConfigContext.Provider
-      value={[{ MAX_TEMPO, MIN_TEMPO, ...userSettings }, setUserSettings]}
+      value={[{ MAX_TEMPO, MIN_TEMPO, ...userSettings }, updateSettings]}
     >
       {children}
     </ConfigContext.Provider>

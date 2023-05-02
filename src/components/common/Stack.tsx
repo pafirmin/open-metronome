@@ -16,7 +16,7 @@ interface Props {
     | "space-between"
     | "space-around"
     | "stretch";
-  gap?: number;
+  gap?: number | string;
 }
 
 const Stack = styled.div<Props>`
@@ -24,7 +24,8 @@ const Stack = styled.div<Props>`
   flex-direction: ${(props) => props.direction || "column"};
   justify-content: ${(props) => props.justifyContent || "start"};
   align-items: ${(props) => props.alignItems || "stretch"};
-  gap: ${(props) => props.gap?.toString() + "px" || 0};
+  gap: ${(props) =>
+    typeof props.gap === "number" ? props.gap + "px" : props.gap || 0};
 `;
 
 export default Stack;

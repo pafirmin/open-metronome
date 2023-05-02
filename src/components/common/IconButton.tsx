@@ -9,20 +9,10 @@ const IconButton = styled.button`
   font-size: 1.7rem;
   border-radius: 100%;
   line-height: 0;
+  transition: 0.2s;
 
-  &:hover::after {
-    content: "";
-    position: absolute;
-    width: 120%;
-    height: 0;
-    padding-top: 120%;
-    top: 50%;
-    left: 50%;
-    transform: translateY(-50%) translateX(-50%);
-    border-radius: 100%;
-    background: #8f8f8f;
-    opacity: 0.3;
-    z-index: -1;
+  &:hover {
+    transform: scale(1.2);
   }
 `;
 

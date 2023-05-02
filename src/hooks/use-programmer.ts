@@ -9,7 +9,7 @@ import useMetronome from "./use-metronome";
 type Routine = ProgramChunk[];
 
 export default function useProgrammer() {
-  const { beatCount, updateValues, isRunning, values } = useMetronome();
+  const { beatCount, setValues, isRunning, values } = useMetronome();
   const [routine, setRoutine] = useState<Routine>([]);
 
   /**
@@ -35,17 +35,6 @@ export default function useProgrammer() {
     }
   }, []);
 
-  // When metronome is stopped, reset values to the first chunk of the routine
-  useEffect(() => {
-    if (!currChunk) return;
-    updateValues((prev) => ({
-      ...prev,
-      tempo: currChunk.tempo,
-      metre: currChunk.metre,
-      silent: currChunk.silent,
-    }));
-  }, [currChunk, updateValues]);
-
   useEffect(() => {
     if (!currChunk) return;
 
@@ -60,7 +49,7 @@ export default function useProgrammer() {
     // On last beat, anticipate silence setting for the next measure
     if (isLastBeat && routine[nextIndex].silent !== values.silent) {
       const next = routine[nextIndex];
-      updateValues((values) => ({
+      setValues((values) => ({
         ...values,
         silent: next.silent,
       }));
@@ -68,6 +57,14 @@ export default function useProgrammer() {
 
     // On first beat, update current chunk index
     if (isFirstBeat) {
+      const newChunk = routine[nextIndex];
+      setValues((prev) => ({
+        ...prev,
+        tempo: newChunk.tempo,
+        metre: newChunk.metre,
+        silent: newChunk.silent,
+      }));
+
       setCurrIndex(nextIndex);
       setOffset((prev) => prev + currChunk.measures * currChunk.metre);
     }
@@ -75,7 +72,7 @@ export default function useProgrammer() {
     currChunk,
     currIndex,
     routine,
-    updateValues,
+    setValues,
     beatCount.total,
     values.division,
     values.silent,
@@ -88,18 +85,27 @@ export default function useProgrammer() {
     if (isRunning) return;
     setCurrIndex(0);
     setOffset(0);
-  }, [isRunning]);
+    setValues((prev) => ({ ...prev }));
+  }, [isRunning, setValues]);
 
   const updateRoutine = (newValue: Routine) => {
-    setRoutine(newValue);
-    persistRoutine(newValue);
-
     // reflect change in routine order in currently playing routine
     const newIndex = newValue.indexOf(currChunk);
 
     if (isRunning && newIndex !== currIndex) {
       setCurrIndex(newIndex);
     }
+
+    if (!isRunning && newValue[0] && newValue[0] !== routine[0]) {
+      setValues((prev) => ({
+        ...prev,
+        tempo: newValue[0].tempo,
+        metre: newValue[0].metre,
+        silent: newValue[0].silent,
+      }));
+    }
+    setRoutine(newValue);
+    persistRoutine(newValue);
   };
 
   return { routine, currIndex, updateRoutine };

@@ -4,7 +4,7 @@ import { MetronomeValues } from "../../common/interfaces/metronome-values.interf
 type TickerContextValue =
   | {
       values: MetronomeValues;
-      updateValues: React.Dispatch<React.SetStateAction<MetronomeValues>>;
+      setValues: React.Dispatch<React.SetStateAction<MetronomeValues>>;
       beatCount: { total: number; measure: number };
       reset: () => void;
       startPulse: () => void;

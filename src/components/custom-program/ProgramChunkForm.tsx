@@ -3,7 +3,9 @@ import { ChangeEvent, useRef, useState } from "react";
 import ReactSlider from "react-slider";
 import { ProgramChunk } from "../../common/interfaces/program-chunk.interface";
 import useConfig from "../../hooks/use-config";
-import { NumberInput } from "../common";
+import { IconButton, NumberInput } from "../common";
+import { AiOutlinePlusCircle } from "react-icons/ai";
+import { Tooltip } from "react-tooltip";
 
 interface Props {
   onSubmit: (chunk: ProgramChunk) => void;
@@ -14,61 +16,12 @@ const ProgramForm = styled.form`
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  font-size: 1.2rem;
-`;
-
-const TempoPopover = styled.div<{
-  top: number;
-  left: number;
-  visible: boolean;
-}>`
-  position: fixed;
-  visibility: ${(props) => (props.visible ? "visible" : "hidden")};
-  opacity: ${(props) => (props.visible ? "100" : "0")};
-  top: ${(props) => props.top}px;
-  left: ${(props) => props.left}px;
-  transform: translateX(-50%);
-  transition: opacity 0.3s, visibility 0.3s;
-  z-index: 1000;
-
-  &:hover {
-    visibility: visible;
-    opacity: 100%;
-  }
-`;
-
-const PopoverContent = styled.div`
-  position: relative;
-  background: #ffffffc4;
-  box-shadow: 0px 0px 8px 3px #2c2c2c;
-  margin-top: 20px;
-  width: 200px;
-  padding: 0.8rem;
-  box-sizing: border-box;
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: -12px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 0 12px 12px 12px;
-    border-color: transparent transparent #ffffffc4 transparent;
-  }
 `;
 
 const ProgramChunkForm = ({ onSubmit }: Props) => {
   const [{ MIN_TEMPO, MAX_TEMPO }] = useConfig();
   const tempoRef = useRef<HTMLInputElement>(null);
-  const [showSlider, setShowSlider] = useState(false);
-
-  const popoverTop = tempoRef.current?.getBoundingClientRect().bottom || 0;
-  const popoverLeft =
-    Number(tempoRef.current?.getBoundingClientRect().x) +
-    Number(tempoRef.current?.offsetWidth) / 2;
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const [chunkValues, setChunkValues] = useState<ProgramChunk>({
     id: "",
@@ -97,6 +50,7 @@ const ProgramChunkForm = ({ onSubmit }: Props) => {
         min={1}
         max={1000}
         name="measures"
+        aria-label="number of measures"
         value={chunkValues.measures}
         onChange={handleChange}
       />
@@ -106,38 +60,39 @@ const ProgramChunkForm = ({ onSubmit }: Props) => {
         min={2}
         max={32}
         name="metre"
+        aria-label="metre"
         value={chunkValues.metre}
         onChange={handleChange}
       />
       <span>at</span>
       <NumberInput
+        id="tempo-input"
         ref={tempoRef}
         min={MIN_TEMPO}
         max={MAX_TEMPO}
         type="number"
         name="tempo"
+        aria-label="tempo"
         value={chunkValues.tempo}
-        onMouseOver={() => setShowSlider(true)}
-        onMouseLeave={() => setShowSlider(false)}
+        onMouseOver={(e) => setAnchorEl(e.currentTarget)}
+        onMouseLeave={() => setAnchorEl(null)}
         onChange={handleChange}
       />
-      <TempoPopover top={popoverTop} left={popoverLeft} visible={showSlider}>
-        <PopoverContent>
-          <ReactSlider
-            value={chunkValues.tempo}
-            min={MIN_TEMPO}
-            max={MAX_TEMPO}
-            onChange={(num) => setChunkValues({ ...chunkValues, tempo: num })}
-            trackClassName={"sliderTrack"}
-            thumbClassName={"sliderThumb"}
-            className={"slider"}
-          />
-        </PopoverContent>
-      </TempoPopover>
+      <Tooltip anchorSelect="#tempo-input" clickable style={{ width: "175px" }}>
+        <ReactSlider
+          value={chunkValues.tempo}
+          min={MIN_TEMPO}
+          max={MAX_TEMPO}
+          onChange={(num) => setChunkValues({ ...chunkValues, tempo: num })}
+          trackClassName={"sliderTrack"}
+          thumbClassName={"sliderThumb"}
+          className={"slider"}
+        />
+      </Tooltip>
       <span>bpm</span>
-      <button type="submit" color="inherit">
-        add
-      </button>
+      <IconButton aria-label="add to routine">
+        <AiOutlinePlusCircle />
+      </IconButton>
     </ProgramForm>
   );
 };

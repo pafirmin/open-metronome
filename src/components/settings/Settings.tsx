@@ -6,6 +6,7 @@ import { Stack } from "../common";
 const Wrapper = styled.div`
   text-align: center;
   max-width: 450px;
+  margin: auto;
 `;
 
 const SettingsField = styled(Stack)`

@@ -1,11 +1,9 @@
 import styled from "@emotion/styled";
 import { ChangeEvent, FocusEvent, useRef, useState } from "react";
-import ReactSlider from "react-slider";
 import { ProgramChunk } from "../../common/interfaces/program-chunk.interface";
 import useConfig from "../../hooks/use-config";
 import { IconButton, NumberInput } from "../common";
 import { AiOutlinePlusCircle } from "react-icons/ai";
-import { Tooltip } from "react-tooltip";
 
 interface Props {
   onSubmit: (chunk: ProgramChunk) => void;
@@ -35,7 +33,7 @@ const ProgramChunkForm = ({ onSubmit }: Props) => {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setChunkValues({
       ...chunkValues,
-      [e.target.name]: e.target.value,
+      [e.target.name]: parseInt(e.target.value),
     });
   };
 

@@ -1,9 +1,10 @@
 import ReactSlider from "react-slider";
+
 import { useMetronome } from "../../hooks";
 import { AiOutlinePlusCircle, AiOutlineMinusCircle } from "react-icons/ai";
 import { IconButton, Stack } from "../common";
 import useConfig from "../../hooks/use-config";
-import { Fragment } from "react";
+import { Fragment, useEffect } from "react";
 
 interface Props {
   disabled?: boolean;
@@ -11,7 +12,7 @@ interface Props {
 
 const ClassicMode = ({ disabled = false }: Props) => {
   const [{ MIN_TEMPO, MAX_TEMPO }] = useConfig();
-  const { values, setValues } = useMetronome();
+  const { values, setValues, reset } = useMetronome();
 
   const handleTempo = (val: number) => {
     setValues((prev) => ({ ...prev, tempo: val }));
@@ -20,6 +21,16 @@ const ClassicMode = ({ disabled = false }: Props) => {
   const handleAdjustMetre = (change: number) => {
     setValues((prev) => ({ ...prev, metre: prev.metre + change }));
   };
+
+  useEffect(() => {
+    reset();
+    setValues((prev) => ({
+      ...prev,
+      tempo: 120,
+      metre: 4,
+      silent: false,
+    }));
+  }, [setValues, reset]);
 
   return (
     <Fragment>

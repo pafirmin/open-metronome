@@ -1,11 +1,4 @@
-import {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { MetronomeValues } from "../../common/interfaces/metronome-values.interface";
 import TickerContext from "./ticker.context";
 
@@ -60,11 +53,11 @@ const TickerProvider = ({ audioContext, children }: Props) => {
     setIsRunning(true);
   };
 
-  const reset = async () => {
+  const reset = useCallback(() => {
     setBeatCount({ total: 0, measure: 0 });
     setIsRunning(false);
     lastNoteTimeRef.current = 0;
-  };
+  }, []);
 
   /**
    * Play an audible tick

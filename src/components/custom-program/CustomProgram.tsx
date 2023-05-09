@@ -1,11 +1,13 @@
-import { Fragment } from "react";
+import { Fragment, useEffect } from "react";
 import { ProgramChunk } from "../../common/interfaces/program-chunk.interface";
+import { useMetronome } from "../../hooks";
 import useProgrammer from "../../hooks/use-programmer";
 import ProgramChunkForm from "./ProgramChunkForm";
 import ProgramChunkList from "./ProgramChunkList";
 
 const CustomProgram = () => {
   const { routine, updateRoutine, currIndex } = useProgrammer();
+  const { reset } = useMetronome();
 
   const appendChunk = (chunk: ProgramChunk) => {
     const updated = [...routine, chunk];
@@ -31,6 +33,11 @@ const CustomProgram = () => {
 
     updateRoutine(reordered);
   };
+
+  // reset metronome state on mount
+  useEffect(() => {
+    reset();
+  }, [reset]);
 
   return (
     <Fragment>

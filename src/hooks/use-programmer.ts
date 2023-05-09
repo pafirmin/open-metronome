@@ -83,10 +83,15 @@ export default function useProgrammer() {
   // reset state
   useEffect(() => {
     if (isRunning) return;
+
     setCurrIndex(0);
     setOffset(0);
-    setValues((prev) => ({ ...prev }));
-  }, [isRunning, setValues]);
+
+    if (routine[0]) {
+      const { tempo, metre, silent } = routine[0];
+      setValues((prev) => ({ ...prev, tempo, metre, silent }));
+    }
+  }, [isRunning, setValues, routine]);
 
   const updateRoutine = (newValue: Routine) => {
     // reflect change in routine order in currently playing routine
@@ -96,14 +101,6 @@ export default function useProgrammer() {
       setCurrIndex(newIndex);
     }
 
-    if (!isRunning && newValue[0] && newValue[0] !== routine[0]) {
-      setValues((prev) => ({
-        ...prev,
-        tempo: newValue[0].tempo,
-        metre: newValue[0].metre,
-        silent: newValue[0].silent,
-      }));
-    }
     setRoutine(newValue);
     persistRoutine(newValue);
   };

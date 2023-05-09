@@ -13,7 +13,8 @@ const MainWrapper = styled.main`
   margin: 1rem auto 0 auto;
   position: relative;
   padding-bottom: 1rem;
-  height: 100vh;
+  width: 100vw;
+
   ${breakPoints.sm} {
     margin-top: 3rem;
   }

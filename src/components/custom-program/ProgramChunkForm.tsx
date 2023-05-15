@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { ChangeEvent, FocusEvent, useRef, useState } from "react";
+import { ChangeEvent, FocusEvent, useState } from "react";
 import { ProgramChunk } from "../../common/interfaces/program-chunk.interface";
 import useConfig from "../../hooks/use-config";
 import { IconButton, NumberInput } from "../common";
@@ -18,7 +18,6 @@ const ProgramForm = styled.form`
 
 const ProgramChunkForm = ({ onSubmit }: Props) => {
   const [{ MIN_TEMPO, MAX_TEMPO }] = useConfig();
-  const tempoRef = useRef<HTMLInputElement>(null);
 
   const defaultValues: ProgramChunk = {
     id: "",
@@ -77,7 +76,6 @@ const ProgramChunkForm = ({ onSubmit }: Props) => {
       <span>at</span>
       <NumberInput
         id="tempo-input"
-        ref={tempoRef}
         min={MIN_TEMPO}
         max={MAX_TEMPO}
         type="number"
